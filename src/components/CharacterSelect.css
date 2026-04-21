@@ -1,0 +1,262 @@
+.char-select {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  background-image: url('/Paisaje.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  padding: 2.5rem;
+  box-sizing: border-box;
+  position: relative;
+  animation: fadeIn 0.55s ease-out;
+  transition: opacity 0.5s ease-out;
+}
+
+/* Oscurecimiento del paisaje */
+.char-select::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 4, 24, 0.7);
+}
+
+/* Todo el contenido por encima del overlay */
+.char-select > * {
+  position: relative;
+  z-index: 1;
+}
+
+.char-select--leaving {
+  opacity: 0;
+}
+
+/* ── Lateral izquierdo: cerdito ── */
+.char-left {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.char-cerdito-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.char-bubble {
+  background: #fff;
+  color: #e65100;
+  font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+  font-weight: 800;
+  padding: 0.9em 1.5em;
+  border-radius: 22px;
+  border: 3px solid #ffcc02;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  position: relative;
+  margin-bottom: 16px;
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.5;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+.char-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #ffcc02;
+}
+
+.char-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #fff;
+  z-index: 1;
+}
+
+.char-cerdito {
+  width: clamp(180px, 22vw, 290px);
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+}
+
+/* ── Panel derecho: tarjetas + nombre ── */
+.char-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+  max-width: 680px;
+}
+
+/* ── Tarjetas ── */
+.char-cards {
+  display: flex;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  justify-content: center;
+}
+
+.char-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 26px;
+  padding: 1.4rem 1.6rem 1.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease,
+    background 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.char-card img {
+  width: clamp(140px, 18vw, 230px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+
+.char-card span {
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.char-card:hover:not(.char-card--selected) {
+  transform: translateY(-6px) scale(1.03);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.char-card--selected {
+  border-color: #ffcc02;
+  background: rgba(255, 204, 2, 0.18);
+  box-shadow: 0 0 28px rgba(255, 204, 2, 0.55), 0 8px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-8px) scale(1.06);
+}
+
+/* ── Campo nombre ── */
+.char-name-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.char-name-label {
+  font-size: clamp(1.3rem, 2.8vw, 1.7rem);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.char-name-input {
+  width: 100%;
+  max-width: 440px;
+  font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+  font-family: inherit;
+  font-weight: 700;
+  padding: 0.7em 1.3em;
+  border: 3px solid #ffcc02;
+  border-radius: 50px;
+  outline: none;
+  text-align: center;
+  color: #333;
+  background: rgba(255, 255, 255, 0.93);
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+}
+
+.char-name-input:focus {
+  box-shadow: 0 0 0 5px rgba(255, 204, 2, 0.45);
+}
+
+.char-name-input::placeholder {
+  color: #bbb;
+  font-weight: 500;
+}
+
+/* ── Botón confirmar ── */
+.char-confirm-btn {
+  font-size: clamp(1.5rem, 3.5vw, 2.1rem);
+  font-weight: 900;
+  font-family: inherit;
+  padding: 0.65em 2.6em;
+  background: linear-gradient(135deg, #ff6f00 0%, #ffa000 100%);
+  color: #fff;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #bf360c, 0 12px 24px rgba(255, 111, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  user-select: none;
+}
+
+.char-confirm-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 #bf360c;
+}
+
+.char-confirm-btn:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #bf360c, 0 18px 32px rgba(255, 111, 0, 0.45);
+}
+
+.char-confirm-btn:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #bf360c, 0 5px 12px rgba(255, 111, 0, 0.3);
+}
+
+/* ── Animaciones ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .char-select {
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .char-left { order: 2; }
+  .char-right { order: 1; }
+
+  .char-cerdito { width: clamp(120px, 24vw, 180px); }
+  .char-bubble  { max-width: 360px; }
+}
+
+@media (max-width: 480px) {
+  .char-cards { gap: 1rem; }
+  .char-card img { width: clamp(100px, 30vw, 140px); }
+  .char-card { padding: 1rem 1rem 1.3rem; }
+}

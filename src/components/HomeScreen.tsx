@@ -6,29 +6,43 @@ interface HomeScreenProps {
 }
 
 export default function HomeScreen({ onStart }: HomeScreenProps) {
-  const [starting, setStarting] = useState(false)
+  const [met, setMet] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+
+  const handleCerditoClick = () => {
+    if (!met) setMet(true)
+  }
 
   const handleStart = () => {
-    setStarting(true)
-    setTimeout(onStart, 600)
+    setLeaving(true)
+    setTimeout(onStart, 550)
   }
 
   return (
-    <div className={`home-screen${starting ? ' home-screen--starting' : ''}`}>
+    <div className={`home-screen${leaving ? ' home-screen--leaving' : ''}`}>
       <h1 className="home-title">¡La Aventura del Ahorro!</h1>
 
       <div className="home-center">
-        <img src="/Niña.png" alt="Niña" className="home-character" />
-
         <div className="home-cerdito-wrapper">
-          <div className="home-bubble">¡Hola, soy Cerdito!</div>
-          <img src="/Cerdito.png" alt="Cerdito hucha" className="home-cerdito" />
+          {met && (
+            <div className="home-bubble">
+              ¡Hola! Soy Huchín y voy a ser tu guía en esta aventura ¿Estás preparado?
+            </div>
+          )}
+          <img
+            src="/Cerdito.png"
+            alt="Cerdito hucha — haz clic para presentarte"
+            className={`home-cerdito${met ? '' : ' home-cerdito--idle'}`}
+            onClick={handleCerditoClick}
+          />
         </div>
-
-        <img src="/Niño.png" alt="Niño" className="home-character" />
       </div>
 
-      <button className="home-start-btn" onClick={handleStart}>
+      <button
+        className="home-start-btn"
+        onClick={handleStart}
+        disabled={!met}
+      >
         ¡Empezar!
       </button>
     </div>

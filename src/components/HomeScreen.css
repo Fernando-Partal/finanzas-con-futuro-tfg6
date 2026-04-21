@@ -17,7 +17,7 @@
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
-.home-screen--starting {
+.home-screen--leaving {
   opacity: 0;
   transform: scale(1.04);
 }
@@ -37,25 +37,13 @@
   letter-spacing: -0.5px;
 }
 
-/* ── Fila central: personajes + cerdito ── */
+/* ── Centro: solo el cerdito ── */
 .home-center {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: clamp(1rem, 4vw, 3rem);
-  width: 100%;
-  max-width: 860px;
   flex: 1;
   padding-bottom: 0.5rem;
-}
-
-/* ── Personajes secundarios (estáticos, más grandes) ── */
-.home-character {
-  width: clamp(260px, 20vw, 2100px);
-  height: auto;
-  object-fit: contain;
-  flex-shrink: 0;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
 }
 
 /* ── Cerdito + bocadillo ── */
@@ -63,26 +51,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-shrink: 0;
 }
 
-/* Bocadillo de diálogo */
 .home-bubble {
   background: #fff;
   color: #e65100;
-  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
   font-weight: 800;
-  padding: 0.55em 1.2em;
+  padding: 0.55em 1.4em;
   border-radius: 20px;
   border: 3px solid #ffcc02;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   white-space: nowrap;
-  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
 }
 
-/* Triángulo apuntando al cerdito */
 .home-bubble::after {
   content: '';
   position: absolute;
@@ -104,16 +89,46 @@
   z-index: 1;
 }
 
-/* ── Cerdito principal ── */
 .home-cerdito {
-  width: clamp(260px, 26vw, 360px);
+  width: clamp(220px, 28vw, 340px);
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.22));
-  animation: bounce 2.2s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.home-cerdito:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.3));
+}
+
+/* Pulso sutil para invitar al click antes de hablar */
+.home-cerdito--idle {
+  animation: idlePulse 2.4s ease-in-out infinite;
+}
+
+.home-cerdito:active {
+  transform: scale(0.96);
 }
 
 /* ── Botón principal ── */
+.home-start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 #bf360c;
+}
+
+.home-start-btn:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #bf360c, 0 18px 32px rgba(255, 111, 0, 0.45);
+}
+
+.home-start-btn:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #bf360c, 0 5px 12px rgba(255, 111, 0, 0.3);
+}
+
 .home-start-btn {
   font-size: clamp(1.4rem, 4vw, 2rem);
   font-weight: 900;
@@ -132,25 +147,15 @@
   margin-bottom: 0.5rem;
 }
 
-.home-start-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 0 #bf360c, 0 18px 32px rgba(255, 111, 0, 0.45);
-}
-
-.home-start-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 3px 0 #bf360c, 0 5px 12px rgba(255, 111, 0, 0.3);
-}
-
 /* ── Animaciones ── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-18px); }
+@keyframes idlePulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
 }
 
 @keyframes popIn {
@@ -158,15 +163,11 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── Responsive ── */
 @media (max-width: 768px) {
   .home-screen { padding: 2rem 1rem 1.5rem; }
-  .home-center { gap: 0.5rem; }
-  .home-bubble { white-space: normal; text-align: center; }
 }
 
 @media (max-width: 480px) {
-  .home-character { width: clamp(90px, 22vw, 130px); }
-  .home-cerdito   { width: clamp(120px, 32vw, 180px); }
-  .home-center    { gap: 0.25rem; }
+  .home-cerdito { width: clamp(160px, 52vw, 240px); }
+  .home-bubble  { white-space: normal; text-align: center; }
 }

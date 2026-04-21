@@ -10,170 +10,126 @@ La aplicación será un **videojuego educativo interactivo**, donde el alumno av
 
 ---
 
-## 🎮 Estructura del Juego
+## ⚙️ Stack Tecnológico Real
 
-- El juego sigue un **camino interactivo**
-- El jugador progresa superando **minijuegos educativos**
-- Hay un **hilo conductor narrativo**
-- Una **mascota (cerdito hucha 🐷)** guía al niño:
-  - Da instrucciones
-  - Motiva
-  - Explica conceptos
-  - Refuerza el aprendizaje
+- **Framework:** React 19 + TypeScript (`.tsx`)
+- **Build tool:** Vite 8
+- **Estilos:** Vanilla CSS con CSS Variables y CSS Nesting — **sin Tailwind**
+- **Linting:** ESLint 9 + TypeScript ESLint
+- **Gestión de estado:** `useState` / `useReducer` (sin librerías externas)
+- **SPA:** Sin router — navegación por estado en `App.tsx`
 
 ---
 
-## 🧠 Minijuegos
+## 📁 Estructura de Archivos Actual
 
-### 1. 💰 Minijuego: El Cambio
+```
+src/
+├── App.tsx                          ← Controlador de flujo principal
+├── main.tsx                         ← Entry point (React 19 createRoot)
+├── index.css                        ← Reset global + variables CSS
+├── App.css                          ← Vacío / no usado
+└── components/
+    ├── HomeScreen.tsx / .css        ← Pantalla de inicio
+    ├── IntroScreen.tsx / .css       ← Monólogo del cerdito (typewriter)
+    └── CharacterSelect.tsx / .css   ← Selección de personaje + nombre
 
-#### Modelo de Dominio
-- Dinero: denominaciones (monedas/billetes), valor en céntimos
-- Producto: nombre, precio
-- Compra: producto + pago + cambio
-- Pago: cantidad entregada
-- Cambio: cantidad a devolver
-- Intento: respuesta + resultado + errores
+public/
+├── Cerdito.png     ← Mascota principal (Huchín)
+├── Niña.png        ← Personaje femenino
+├── Niño.png        ← Personaje masculino
+├── Paisaje.png     ← Fondo usado en todas las pantallas
+└── favicon.svg
 
-#### Features
+docs/
+└── claude-context.md
+```
 
-**A. Preparación**
-- Lista de productos con precio
-- Selección de billete válido (> precio)
-- Cálculo del cambio correcto
-
-**B. Vista del Niño (Comprador)**
-- Mostrar precio y pago
-- Mostrar cambio recibido
-- Opción de aceptar o reclamar
-- Registro de aciertos/errores
-
-**C. Vista Cajero**
-- Mostrar cambio esperado
-- Selección de monedas/billetes
-- Cálculo total seleccionado
-- Validación ("te falta / te sobra")
+> ⚠️ Las imágenes están en `/public/` con mayúsculas y tildes exactas.
+> Vite las sirve en la raíz: `src="/Cerdito.png"`, `src="/Niña.png"`, `src="/Niño.png"`, `src="/Paisaje.png"`.
 
 ---
 
-### 2. 🛒 Minijuego: Necesidad vs Deseo
+## 🎮 Flujo de Pantallas Implementado
 
-#### Modelo de Dominio
-- Producto: nombre, imagen, categoría real
-- Clasificación: Necesidad | Deseo
-- Ronda / Intento / Sesión
+`App.tsx` gestiona el flujo con un estado `screen: 'home' | 'intro' | 'character-select' | 'game'` y guarda `player: { name: string, character: 'girl' | 'boy' }` tras la selección.
 
-#### Features
+### Pantalla 1 — `HomeScreen`
+- Fondo: `Paisaje.png`
+- Título: "¡La Aventura del Ahorro!"
+- Cerdito (Huchín) centrado, **clickable**
+- Antes de hacer clic: el cerdito tiene animación `idlePulse` (escala suave) para invitar al click
+- Al hacer clic: aparece bocadillo "¡Hola! Soy Huchín y voy a ser tu guía en esta aventura ¿Estás preparado?"
+- Botón "¡Empezar!" **deshabilitado** hasta que el niño haya hablado con Huchín (`met === true`)
+- Transición de salida: fade-out + scale con clase `home-screen--leaving`
 
-**A. Preparación**
-- Lista de productos clasificados
-- Generación aleatoria de rondas
+### Pantalla 2 — `IntroScreen`
+- Fondo: `Paisaje.png`
+- Huchín con bocadillo de **efecto typewriter** (38ms/carácter)
+- Truco de layout: el texto completo se renderiza invisible (`.intro-bubble-ghost`) para fijar el tamaño del bocadillo desde el primer frame; el texto visible se superpone en `position: absolute`
+- Clic en el bocadillo → salta al final instantáneamente
+- Botón "Continuar →" siempre visible pero **deshabilitado** hasta que el texto termina
+- Transición de salida: fade-out
 
-**B. Vista del Niño**
-- Mostrar producto (imagen + nombre)
-- Opciones: NECESIDAD / DESEO
-- Selección única
-- Validación inmediata
-- Feedback (correcto/incorrecto)
-- Registro de resultados
+### Pantalla 3 — `CharacterSelect`
+- Fondo: `Paisaje.png` con overlay oscuro `rgba(8, 4, 24, 0.7)`
+- Layout horizontal: Huchín a la izquierda con bocadillo fijo, panel de selección a la derecha
+- Dos tarjetas seleccionables (Niña / Niño) con borde dorado y glow al seleccionar
+- Input de nombre (máx. 20 chars, Enter confirma)
+- Botón "¡Vamos!" deshabilitado hasta que hay personaje seleccionado Y nombre introducido
+- En mobile (< 960px): layout vertical, Huchín debajo
 
-**C. Puntuación**
-- Puntos acumulados
-- Contador de errores
-- Resumen final
-
-**D. Interacción**
-- Botones o drag & drop
-- Animaciones de feedback
-
----
-
-### 3. 💸 Minijuego: ¿Cuánto cuesta?
-
-#### Modelo de Dominio
-- Producto: nombre, imagen, precio aproximado
-- Rangos: <1€, 1–5€, 5–20€, >20€
-
-#### Features
-
-**A. Preparación**
-- Lista de productos con rangos
-- Selección aleatoria
-
-**B. Vista del Niño**
-- Mostrar producto
-- Elegir rango
-- Validación inmediata
-- Feedback + respuesta correcta
-- Registro de resultados
-
-**C. Puntuación**
-- Sistema simple de puntos
+### Pantalla 4 — `game` (placeholder)
+- Solo existe un placeholder con "¡Hola, {nombre}! El mapa de aventuras llegará pronto..."
+- **Aquí va el siguiente trabajo: el mapa/camino interactivo**
 
 ---
 
-### 4. 🐖 Minijuego: Ahorro con Objetivo
+## 🎨 Decisiones de Diseño Establecidas
 
-#### Modelo de Dominio
-- Objetivo: producto + coste
-- Plan de ahorro: cantidad por semana
-- Progreso acumulado
-
-#### Features
-
-**A. Preparación**
-- Lista de objetivos
-- Generación de planes de ahorro
-
-**B. Vista del Niño**
-- Mostrar objetivo y coste
-- Mostrar o elegir ahorro semanal
-- Calcular semanas necesarias
-- Validación con feedback visual (barra de progreso)
-- Registro de resultados
-
-**C. Puntuación**
-- Puntos por acierto
-- Progreso global
+- **Fondo universal:** `Paisaje.png` con `background-size: cover; background-position: bottom center`
+- **Paleta:** naranja/amarillo para botones (`#ff6f00` → `#ffa000`), sombra `#bf360c`; dorado `#ffcc02` para bordes de bocadillos
+- **Bocadillos:** fondo blanco, borde `#ffcc02`, triángulo CSS apuntando al cerdito, sombra
+- **Botones principales:** `border-radius: 60px`, gradiente naranja, sombra 3D desplazada hacia abajo, hover = translateY(-4px)
+- **Botones deshabilitados:** `opacity: 0.4`, `cursor: not-allowed`
+- **Transiciones de pantalla:** `opacity + scale`, 550ms, clase `--leaving` en el componente raíz
+- **Sin animación bounce** en ninguna pantalla (eliminada por decisión del usuario)
+- **Sin Tailwind** — todo vanilla CSS con `clamp()` para responsive
 
 ---
 
-### 5. 🏷️ Minijuego: Comparar Ofertas
+## 🐷 Mascota: Huchín
 
-#### Modelo de Dominio
-- Producto: nombre, cantidad, precio
-- Oferta: varias opciones comparables
-
-#### Features
-
-**A. Preparación**
-- Generación de ofertas comparables
-- Determinar mejor opción (precio por unidad)
-
-**B. Vista del Niño**
-- Mostrar opciones claramente
-- Seleccionar mejor oferta
-- Validación
-- Feedback con explicación
-
-**C. Puntuación**
-- Sistema de puntos simple
+- Nombre: **Huchín**
+- Imagen: `/Cerdito.png`
+- Rol: guía narrativo, aparece en todas las pantallas con bocadillos
+- **No tiene animación de bounce** (eliminada)
+- En HomeScreen: clickable para presentarse; en las demás pantallas: estático con bocadillo
 
 ---
 
-## 🐷 Mascota: Cerdito Hucha
+## 🧠 Minijuegos Pendientes de Implementar
 
-### Funciones
-- Guía narrativa del juego
-- Introduce minijuegos
-- Da feedback educativo
-- Refuerza conceptos financieros
-- Mantiene motivación
+### 1. 💰 El Cambio
+- Modelo: producto + precio, billete de pago, cálculo de cambio
+- Vista comprador: acepta o reclama el cambio
+- Vista cajero: selecciona monedas/billetes para dar cambio
 
-### Características
-- Lenguaje simple y amigable
-- Mensajes cortos y claros
-- Refuerzo positivo constante
+### 2. 🛒 Necesidad vs Deseo
+- Mostrar producto → elegir NECESIDAD o DESEO
+- Validación inmediata, feedback, puntuación
+
+### 3. 💸 ¿Cuánto cuesta?
+- Mostrar producto → elegir rango de precio (<1€, 1-5€, 5-20€, >20€)
+- Validación + feedback
+
+### 4. 🐖 Ahorro con Objetivo
+- Objetivo con coste → elegir ahorro semanal → calcular semanas
+- Barra de progreso visual
+
+### 5. 🏷️ Comparar Ofertas
+- Varias opciones de un producto → elegir la mejor (precio/unidad)
+- Explicación del resultado
 
 ---
 
@@ -188,21 +144,14 @@ La aplicación será un **videojuego educativo interactivo**, donde el alumno av
 
 ---
 
-## ⚙️ Stack Tecnológico
-
-- Frontend: React
-- Enfoque: SPA (Single Page Application)
-- UI: Interactiva, visual, accesible para niños
-
----
-
 ## 🧩 Requisitos UX
 
-- Interfaz simple e intuitiva
-- Elementos visuales grandes
-- Uso de colores y animaciones
-- Feedback inmediato
-- Interacción táctil (pensado para tablets)
+- Interfaz simple e intuitiva para niños de 8–12 años
+- Elementos visuales **grandes** (tablet-first)
+- Feedback inmediato y visual
+- Interacción táctil
+- Sin bounce en imágenes (decisión del usuario)
+- Botones siempre visibles aunque deshabilitados (no ocultar)
 
 ---
 
@@ -217,3 +166,8 @@ Cuando generes código o propuestas:
 - Incluye **feedback visual inmediato**
 - Evita complejidad innecesaria
 - Propón **arquitectura escalable por minijuegos**
+- Usa **TypeScript** (`.tsx`), no JavaScript puro
+- Usa **vanilla CSS**, no Tailwind ni librerías de UI
+- Las imágenes del `/public/` se referencian desde la raíz: `/Cerdito.png` etc.
+- Los botones deshabilitados usan `disabled` + `opacity: 0.4`, **nunca se ocultan**
+- Las transiciones entre pantallas duran 550ms con clase CSS `--leaving`

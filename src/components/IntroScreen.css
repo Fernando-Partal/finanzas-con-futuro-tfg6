@@ -1,0 +1,148 @@
+.intro-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/Paisaje.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  padding: 2rem;
+  box-sizing: border-box;
+  gap: 2rem;
+  animation: fadeIn 0.55s ease-out;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.intro-screen--leaving {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+/* ── Cerdito + bocadillo ── */
+.intro-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 660px;
+}
+
+.intro-bubble {
+  background: #fff;
+  border: 3px solid #ffcc02;
+  border-radius: 24px;
+  padding: 1.2em 1.8em;
+  font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+  font-weight: 700;
+  color: #222;
+  line-height: 1.6;
+  position: relative;
+  margin-bottom: 14px;
+  width: 100%;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+/* Texto completo invisible que fija el tamaño del bocadillo desde el inicio */
+.intro-bubble-ghost {
+  visibility: hidden;
+  display: block;
+}
+
+/* Texto animado superpuesto sobre el ghost */
+.intro-bubble-text {
+  position: absolute;
+  inset: 1.2em 1.8em;
+}
+
+/* Triángulo → cerdito */
+.intro-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #ffcc02;
+}
+
+.intro-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #fff;
+  z-index: 1;
+}
+
+/* Cursor parpadeante */
+.intro-cursor {
+  display: inline-block;
+  font-weight: 900;
+  color: #ff6f00;
+  animation: blink 0.75s step-end infinite;
+  margin-left: 1px;
+}
+
+.intro-cerdito {
+  width: clamp(180px, 26vw, 290px);
+  height: auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
+}
+
+/* ── Botón continuar ── */
+.intro-continue-btn {
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
+  font-weight: 900;
+  font-family: inherit;
+  padding: 0.65em 2.4em;
+  background: linear-gradient(135deg, #ff6f00 0%, #ffa000 100%);
+  color: #fff;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #bf360c, 0 12px 24px rgba(255, 111, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.3s ease;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  user-select: none;
+}
+
+.intro-continue-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 #bf360c;
+}
+
+.intro-continue-btn:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #bf360c, 0 18px 32px rgba(255, 111, 0, 0.45);
+}
+
+.intro-continue-btn:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #bf360c, 0 5px 12px rgba(255, 111, 0, 0.3);
+}
+
+/* ── Animaciones ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .intro-screen { padding: 1.5rem 1rem; gap: 1.5rem; }
+  .intro-bubble { min-height: 6rem; }
+}
