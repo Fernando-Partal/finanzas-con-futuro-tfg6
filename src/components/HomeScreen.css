@@ -1,0 +1,172 @@
+.home-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-image: url('/Paisaje.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  padding: 2.5rem 2rem 2rem;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.7s ease-out;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.home-screen--starting {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+/* ── Título ── */
+.home-title {
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow:
+    2px 2px 0 #e65100,
+    4px 4px 0 rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(0, 0, 0, 0.4);
+  margin: 0;
+  text-align: center;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* ── Fila central: personajes + cerdito ── */
+.home-center {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 3rem);
+  width: 100%;
+  max-width: 860px;
+  flex: 1;
+  padding-bottom: 0.5rem;
+}
+
+/* ── Personajes secundarios (estáticos, más grandes) ── */
+.home-character {
+  width: clamp(260px, 20vw, 2100px);
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+}
+
+/* ── Cerdito + bocadillo ── */
+.home-cerdito-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Bocadillo de diálogo */
+.home-bubble {
+  background: #fff;
+  color: #e65100;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  font-weight: 800;
+  padding: 0.55em 1.2em;
+  border-radius: 20px;
+  border: 3px solid #ffcc02;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  position: relative;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+
+/* Triángulo apuntando al cerdito */
+.home-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #ffcc02;
+}
+
+.home-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #fff;
+  z-index: 1;
+}
+
+/* ── Cerdito principal ── */
+.home-cerdito {
+  width: clamp(260px, 26vw, 360px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.22));
+  animation: bounce 2.2s ease-in-out infinite;
+}
+
+/* ── Botón principal ── */
+.home-start-btn {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 900;
+  font-family: inherit;
+  padding: 0.65em 2.4em;
+  background: linear-gradient(135deg, #ff6f00 0%, #ffa000 100%);
+  color: #fff;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #bf360c, 0 12px 24px rgba(255, 111, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  user-select: none;
+  margin-bottom: 0.5rem;
+}
+
+.home-start-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 #bf360c, 0 18px 32px rgba(255, 111, 0, 0.45);
+}
+
+.home-start-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #bf360c, 0 5px 12px rgba(255, 111, 0, 0.3);
+}
+
+/* ── Animaciones ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-18px); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .home-screen { padding: 2rem 1rem 1.5rem; }
+  .home-center { gap: 0.5rem; }
+  .home-bubble { white-space: normal; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .home-character { width: clamp(90px, 22vw, 130px); }
+  .home-cerdito   { width: clamp(120px, 32vw, 180px); }
+  .home-center    { gap: 0.25rem; }
+}
