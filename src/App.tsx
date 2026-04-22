@@ -16,6 +16,7 @@ function App() {
   const [player, setPlayer]               = useState<PlayerData | null>(null)
   const [completedGames, setCompleted]    = useState<number[]>([])
   const [currentGame, setCurrentGame]     = useState<number | null>(null)
+  const [points, setPoints]               = useState<number>(0)
 
   if (screen === 'home') {
     return <HomeScreen onStart={() => setScreen('intro')} />
@@ -41,6 +42,7 @@ function App() {
       <MapScreen
         player={player}
         completedGames={completedGames}
+        points={points}
         onGameSelect={(gameIndex) => {
           setCurrentGame(gameIndex)
           setScreen('minigame')
@@ -52,16 +54,17 @@ function App() {
   // Placeholder de minijuego — sustituir por cada minijuego real
   if (screen === 'minigame' && player && currentGame !== null) {
     const gameNames = [
-      'El Cambio',
       'Necesidad vs Deseo',
       '¿Cuánto cuesta?',
       'Ahorro con Objetivo',
       'Comparar Ofertas',
+      'El Cambio',
     ]
 
     const handleComplete = () => {
       if (!completedGames.includes(currentGame)) {
         setCompleted((prev) => [...prev, currentGame])
+        setPoints((prev) => prev + 100)  // placeholder: cada juego suma 100 pts
       }
       setCurrentGame(null)
       setScreen('map')

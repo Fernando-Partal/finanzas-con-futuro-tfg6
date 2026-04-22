@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   animation: mapFadeIn 0.55s ease-out;
 }
 
@@ -16,17 +16,56 @@
   background-repeat: no-repeat;
 }
 
-/* ── Personaje ── */
-.map-character {
+/* ── Personaje estático + puntos (esquina inferior izquierda) ── */
+.map-player {
   position: absolute;
-  width: clamp(60px, 7vw, 100px);
-  height: auto;
-  transform: translate(-50%, -100%);
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
-  z-index: 2;
-  transition: top 0.85s cubic-bezier(0.34, 1.56, 0.64, 1),
-              left 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   pointer-events: none;
+  animation: mapFadeIn 0.55s ease-out;
+}
+
+.map-player-points {
+  background: linear-gradient(135deg, #ff6f00 0%, #ffa000 100%);
+  border: 3px solid #ffcc02;
+  border-radius: 50px;
+  padding: 0.25em 1.1em 0.35em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(255, 111, 0, 0.55),
+              0 0 0 3px rgba(255, 204, 2, 0.25);
+  margin-bottom: -40px;
+  z-index: 1;
+  min-width: 110px;
+}
+
+.map-player-points-label {
+  font-size: clamp(0.65rem, 1.2vw, 0.82rem);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.88);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+
+.map-player-points-value {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  line-height: 1.1;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.map-player-char {
+  width: clamp(200px, 26vw, 340px);
+  height: auto;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
 }
 
 /* ── Nodo contenedor (posicionado en el mapa) ── */
@@ -135,60 +174,86 @@
   pointer-events: none;
 }
 
-/* ── Huchín guía (arriba derecha) ── */
+/* ── Huchín guía — arriba a la derecha ── */
+/* Fila: bocadillo a la izquierda | cerdito a la derecha */
 .map-guide {
   position: absolute;
-  top: 1.2rem;
+  top: -2rem;
   right: 1.2rem;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   z-index: 10;
 }
 
+/* ── Bocadillo (a la izquierda del cerdito) ── */
 .map-guide-bubble {
-  background: #fff;
-  color: #e65100;
-  font-size: clamp(0.88rem, 1.7vw, 1.15rem);
-  font-weight: 800;
-  padding: 0.75em 1.15em;
-  border-radius: 18px;
-  border: 3px solid #ffcc02;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
-  max-width: clamp(170px, 24vw, 290px);
-  text-align: center;
-  line-height: 1.45;
-  margin-bottom: 8px;
   position: relative;
+  background: #fff;
+  border: 3px solid #ffcc02;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
+  padding: 0.75em 1.15em;
+  max-width: clamp(170px, 24vw, 290px);
   animation: guidePopIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Triángulo apuntando al cerdito */
+/* Triángulo apuntando a la derecha (hacia el cerdito), centrado verticalmente */
 .map-guide-bubble::after {
   content: '';
   position: absolute;
-  bottom: -14px;
-  right: 44px;
-  border: 7px solid transparent;
-  border-top-color: #ffcc02;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-left-color: #ffcc02;
 }
 
 .map-guide-bubble::before {
   content: '';
   position: absolute;
-  bottom: -9px;
-  right: 46px;
-  border: 6px solid transparent;
-  border-top-color: #fff;
+  right: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 7px solid transparent;
+  border-left-color: #fff;
   z-index: 1;
 }
 
+/* Ghost: invisible, fija el tamaño del bocadillo */
+.map-guide-ghost {
+  display: block;
+  visibility: hidden;
+  color: #e65100;
+  font-size: clamp(0.88rem, 1.7vw, 1.15rem);
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* Texto animado superpuesto */
+.map-guide-typed {
+  position: absolute;
+  inset: 0;
+  padding: 0.75em 1.15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e65100;
+  font-size: clamp(0.88rem, 1.7vw, 1.15rem);
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 .map-guide-cerdito {
-  width: clamp(85px, 11vw, 145px);
+  width: clamp(140px, 18vw, 220px);
   height: auto;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.38));
   animation: cerditoIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
-  align-self: flex-end;
+  flex-shrink: 0;
 }
 
 /* ── Animaciones ── */
@@ -207,8 +272,8 @@
 }
 
 @keyframes guidePopIn {
-  from { opacity: 0; transform: scale(0.7) translateY(-8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: scale(0.7) translateX(10px); }
+  to   { opacity: 1; transform: scale(1) translateX(0); }
 }
 
 @keyframes cerditoIn {
@@ -220,12 +285,10 @@
 @media (max-width: 640px) {
   .map-guide-bubble {
     max-width: 150px;
-    font-size: 0.82rem;
-    padding: 0.6em 0.9em;
   }
 
   .map-guide-cerdito {
-    width: 80px;
+    width: 110px;
   }
 
   .map-node {
@@ -235,5 +298,9 @@
 
   .map-node-label {
     font-size: 0.65rem;
+  }
+
+  .map-player-char {
+    width: 110px;
   }
 }
