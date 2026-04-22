@@ -32,13 +32,15 @@ src/
 └── components/
     ├── HomeScreen.tsx / .css        ← Pantalla de inicio
     ├── IntroScreen.tsx / .css       ← Monólogo del cerdito (typewriter)
-    └── CharacterSelect.tsx / .css   ← Selección de personaje + nombre
+    ├── CharacterSelect.tsx / .css   ← Selección de personaje + nombre
+    └── MapScreen.tsx / .css         ← Mapa de aventuras (5 nodos)
 
 public/
 ├── Cerdito.png     ← Mascota principal (Huchín)
 ├── Niña.png        ← Personaje femenino
 ├── Niño.png        ← Personaje masculino
-├── Paisaje.png     ← Fondo usado en todas las pantallas
+├── Paisaje.png     ← Fondo pantallas intro/selección
+├── Mapa.png        ← Fondo del mapa de aventuras
 └── favicon.svg
 
 docs/
@@ -52,7 +54,7 @@ docs/
 
 ## 🎮 Flujo de Pantallas Implementado
 
-`App.tsx` gestiona el flujo con un estado `screen: 'home' | 'intro' | 'character-select' | 'game'` y guarda `player: { name: string, character: 'girl' | 'boy' }` tras la selección.
+`App.tsx` gestiona el flujo con un estado `screen: 'home' | 'intro' | 'character-select' | 'map' | 'minigame'`, guarda `player: { name: string, character: 'girl' | 'boy' }`, `completedGames: number[]` y `currentGame: number | null`.
 
 ### Pantalla 1 — `HomeScreen`
 - Fondo: `Paisaje.png`
@@ -79,9 +81,23 @@ docs/
 - Botón "¡Vamos!" deshabilitado hasta que hay personaje seleccionado Y nombre introducido
 - En mobile (< 960px): layout vertical, Huchín debajo
 
-### Pantalla 4 — `game` (placeholder)
-- Solo existe un placeholder con "¡Hola, {nombre}! El mapa de aventuras llegará pronto..."
-- **Aquí va el siguiente trabajo: el mapa/camino interactivo**
+### Pantalla 4 — `MapScreen` (mapa interactivo)
+- Fondo: `Mapa.png` con `background-size: cover`
+- 5 nodos circulares posicionados en `%` sobre los círculos del fondo (ajustables en `GAME_NODES` dentro de `MapScreen.tsx`)
+- **Estado de nodos:** `--next` (naranja pulsante, desbloqueado), `--done` (verde con ✓), `--locked` (gris con 🔒)
+- Solo el primer nodo se desbloquea al entrar; los siguientes se desbloquean al completar el anterior
+- Personaje (`Niña.png` / `Niño.png`) posicionado en el camino con `CHAR_POSITIONS[]`, avanza suavemente con transición CSS al completar juegos
+- Huchín arriba a la derecha con bocadillo que cambia según el progreso
+- El nodo activo tiene animación `nodePulse` para invitar al clic
+- Etiqueta con nombre del juego bajo cada nodo (fondo semitransparente para legibilidad)
+- Al pulsar un nodo → `screen = 'minigame'`, `currentGame = gameIndex`
+- Al completar o salir de minijuego → vuelve a `'map'`
+
+### Pantalla 5 — `minigame` (placeholder)
+- Placeholder genérico que muestra el nombre del minijuego
+- Botón "Completar (prueba)" añade el índice a `completedGames` y vuelve al mapa
+- Botón "Volver al mapa" vuelve sin completar
+- **Sustituir por cada minijuego real cuando se implemente**
 
 ---
 
