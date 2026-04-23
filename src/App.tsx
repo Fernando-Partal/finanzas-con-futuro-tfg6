@@ -2,21 +2,23 @@ import { useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import IntroScreen from './components/IntroScreen'
 import CharacterSelect from './components/CharacterSelect'
+import FichaSelect from './components/FichaSelect'
 import MapScreen from './components/MapScreen'
 
-type Screen = 'home' | 'intro' | 'character-select' | 'map' | 'minigame'
+type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
 interface PlayerData {
   name: string
   character: 'girl' | 'boy'
+  ficha: 'coche' | 'perro' | 'pato'
 }
 
 function App() {
-  const [screen, setScreen]               = useState<Screen>('home')
-  const [player, setPlayer]               = useState<PlayerData | null>(null)
-  const [completedGames, setCompleted]    = useState<number[]>([])
-  const [currentGame, setCurrentGame]     = useState<number | null>(null)
-  const [points, setPoints]               = useState<number>(0)
+  const [screen, setScreen]            = useState<Screen>('home')
+  const [player, setPlayer]            = useState<PlayerData | null>(null)
+  const [completedGames, setCompleted] = useState<number[]>([])
+  const [currentGame, setCurrentGame]  = useState<number | null>(null)
+  const [points, setPoints]            = useState<number>(0)
 
   if (screen === 'home') {
     return <HomeScreen onStart={() => setScreen('intro')} />
@@ -30,7 +32,19 @@ function App() {
     return (
       <CharacterSelect
         onConfirm={(name, character) => {
-          setPlayer({ name, character })
+          // Guardamos nombre y personaje; la ficha se elige en el paso siguiente
+          setPlayer({ name, character, ficha: 'coche' /* temporal */ })
+          setScreen('ficha-select')
+        }}
+      />
+    )
+  }
+
+  if (screen === 'ficha-select' && player) {
+    return (
+      <FichaSelect
+        onConfirm={(ficha) => {
+          setPlayer({ ...player, ficha })
           setScreen('map')
         }}
       />
@@ -64,7 +78,7 @@ function App() {
     const handleComplete = () => {
       if (!completedGames.includes(currentGame)) {
         setCompleted((prev) => [...prev, currentGame])
-        setPoints((prev) => prev + 100)  // placeholder: cada juego suma 100 pts
+        setPoints((prev) => prev + 100)
       }
       setCurrentGame(null)
       setScreen('map')
@@ -92,15 +106,9 @@ function App() {
           <button
             onClick={handleComplete}
             style={{
-              padding: '0.65em 2em',
-              fontSize: '1.2rem',
-              borderRadius: '60px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #2e7d32, #66bb6a)',
-              color: '#fff',
-              cursor: 'pointer',
-              fontWeight: 800,
-              boxShadow: '0 5px 0 #1b5e20',
+              padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
+              border: 'none', background: 'linear-gradient(135deg, #2e7d32, #66bb6a)',
+              color: '#fff', cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #1b5e20',
             }}
           >
             ✓ Completar (prueba)
@@ -108,15 +116,9 @@ function App() {
           <button
             onClick={() => { setCurrentGame(null); setScreen('map') }}
             style={{
-              padding: '0.65em 2em',
-              fontSize: '1.2rem',
-              borderRadius: '60px',
-              border: 'none',
-              background: '#ff6f00',
-              color: '#fff',
-              cursor: 'pointer',
-              fontWeight: 800,
-              boxShadow: '0 5px 0 #bf360c',
+              padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
+              border: 'none', background: '#ff6f00', color: '#fff',
+              cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #bf360c',
             }}
           >
             ← Volver al mapa

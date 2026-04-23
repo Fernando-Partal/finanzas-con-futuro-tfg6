@@ -68,6 +68,31 @@
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
 }
 
+/* ── Ficha que recorre el camino ── */
+.map-ficha {
+  position: absolute;
+  width: clamp(62px, 8vw, 96px);
+  height: auto;
+  transform: translate(-50%, -100%);
+  z-index: 5;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 6px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+  /* 800ms < STEP_MS(900ms): llega al waypoint antes del siguiente salto */
+  transition: top 800ms ease-in-out, left 800ms ease-in-out;
+}
+
+/* Pequeño balanceo mientras se desplaza */
+.map-ficha--moving {
+  animation: fichaBounce 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes fichaBounce {
+  from { transform: translate(-50%, -100%) rotate(-7deg) scale(1.06); }
+  to   { transform: translate(-50%, -100%) rotate(7deg)  scale(1.06); }
+}
+
 /* ── Nodo contenedor (posicionado en el mapa) ── */
 .map-node-wrapper {
   position: absolute;
