@@ -34,7 +34,8 @@ src/
     ├── IntroScreen.tsx / .css       ← Monólogo del cerdito (typewriter)
     ├── CharacterSelect.tsx / .css   ← Selección de personaje + nombre
     ├── FichaSelect.tsx              ← Selección de ficha (reutiliza CharacterSelect.css)
-    └── MapScreen.tsx / .css         ← Mapa de aventuras (5 nodos + ficha animada)
+    ├── MapScreen.tsx / .css         ← Mapa de aventuras (5 nodos + ficha animada)
+    └── NecesidadDeseo.tsx / .css    ← Minijuego 0 — IMPLEMENTADO ✅
 
 public/
 ├── Cerdito.png       ← Mascota principal (Huchín)
@@ -45,7 +46,13 @@ public/
 ├── FichaCoche.png    ← Ficha seleccionable: coche
 ├── FichaPerro.png    ← Ficha seleccionable: perro
 ├── FichaPato.png     ← Ficha seleccionable: pato
-└── favicon.svg
+├── FondoMinijuego1.png  ← Fondo del minijuego 0
+└── Articulos/        ← 16 imágenes de productos (necesidades y deseos)
+    ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png,
+    │   Leche.png, Pasta.png, Pescado.png, Verduras.png   ← NECESIDADES (8)
+    └── Bicicleta.png, Chocolate.png, Chucherias.png,
+        CocheTeledirigido.png, Donuts.png, MandoPlay.png,
+        Muñeca.png, Refresco.png                          ← DESEOS (8)
 ```
 
 > Las imágenes están en `/public/` y se referencian desde la raíz: `/Cerdito.png`, etc.
@@ -126,11 +133,12 @@ const [points, setPoints]            // number — puntuación acumulada
 - **Huchín guía** arriba a la derecha: bocadillo a su izquierda con typewriter (38ms/carácter) y truco ghost; triángulo apunta hacia la derecha (al cerdito); mensaje cambia según progreso
 - `DEBUG_WAYPOINTS = false` — cuando es `true` muestra puntos rojos (PATH_SEGMENTS) y azules (GAME_NODES) para calibrar posiciones
 
-### Pantalla 6 — `minigame` (placeholder)
-- Placeholder genérico con nombre del juego
-- Botón "Completar (prueba)" → añade al `completedGames`, suma 100 pts, vuelve al mapa
-- Botón "Volver al mapa" → vuelve sin completar
-- **Pendiente: implementar cada minijuego real**
+### Pantalla 6 — `minigame`
+- Para `currentGame === 0`: renderiza `<NecesidadDeseo>` (implementado ✅)
+- Para `currentGame === 1–4`: placeholder genérico (botón "Completar prueba")
+- Contrato de los minijuegos reales: reciben `onComplete(score: number)` y `onBack()`
+- `onComplete`: si `score >= 70` Y no estaba completado → añade a `completedGames` y suma `score` a puntos globales
+- `onBack`: vuelve al mapa sin registrar nada
 
 ---
 
@@ -146,11 +154,135 @@ const [points, setPoints]            // number — puntuación acumulada
 
 ---
 
-## 🧩 Minijuegos Pendientes de Implementar
+## 🧩 Minijuegos
 
-### 0. 🛒 Necesidad vs Deseo
-- Mostrar producto → elegir NECESIDAD o DESEO
-- Validación inmediata, feedback, puntuación
+### 0. 🛒 Necesidad vs Deseo — ✅ IMPLEMENTADO
+**Archivo:** `src/components/NecesidadDeseo.tsx` / `.css`
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` sobre toda la pantalla en todo momento (incluyendo gameplay).
+
+---
+
+#### Fases del componente (`GamePhase`):
+1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables:
+   - Slide 1: bienvenida al primer reto, explica qué son necesidades y deseos. Botón "Continuar →".
+   - Slide 2: instrucciones del juego (tocar necesidades, perder puntos por errores). Botón "¡Entendido! ¡Jugar!".
+   - El bocadillo tiene `key={introSlide}` para reanimar el `ndPopIn` al cambiar de slide.
+2. `'playing'` — Gameplay activo (8 rondas).
+3. `'result'` — Pantalla de resultado centrada con overlay oscuro, Huchín con bocadillo pass/fail, puntuación grande, botones.
+
+#### Pantalla de resultado:
+- Si **aprueba** (≥ 70 pts): botón verde "Ver respuestas" + botón naranja "¡Continuar!". **Sin botón "Volver al mapa"**.
+- Si **suspende**: solo botón naranja "¡Intentar de nuevo!". **Sin botón "Volver al mapa"**.
+- El botón "Ver respuestas" abre `showAnswers = true`.
+
+#### Pantalla de respuestas (`showAnswers`):
+- Se activa con `useState(false)` → `setShowAnswers(true)`.
+- `position: absolute; inset: 0; z-index: 20` — tapa completamente la pantalla de resultado.
+- Fondo: `FondoMinijuego1.png` con `background-blend-mode: darken` sobre `rgba(0,0,0,0.96)` — opaco, no se ve nada detrás.
+- Muestra dos columnas lado a lado: **izquierda** todas las necesidades, **derecha** todos los deseos (imagen pequeña + nombre).
+- Botón "← Volver" → `setShowAnswers(false)`.
+
+---
+
+#### Mecánica de juego (estilo whack-a-mole):
+- 8 rondas con varios objetos a la vez en pantalla
+- El jugador **toca** los que sean NECESIDAD; ignora los DESEOS
+- Sin botones de categoría — interacción directa sobre las tarjetas
+- Rondas cada vez más cortas y con más deseos que necesidades
+
+#### Configuración de rondas (`ROUND_CONFIGS`):
+| Ronda | Necesidades (`n`) | Deseos (`d`) | Duración |
+|-------|-------------------|--------------|----------|
+| 1 | 3 | 1 | 9 s |
+| 2 | 3 | 2 | 8 s |
+| 3 | 2 | 3 | 7 s |
+| 4 | 2 | 3 | 6 s |
+| 5 | 2 | 3 | 5 s |
+| 6 | 2 | 4 | 4 s |
+| 7 | 2 | 4 | 3 s |
+| 8 | 2 | 4 | 2.5 s |
+
+Total necesidades: 18. `PTS_CORRECT = 6` → 18 × 6 = 108 → cap 100. Se necesitan ~17/18 aciertos para llegar a 100.
+
+#### Puntuación:
+- `PTS_CORRECT = 6` por tocar necesidad (cap global en 100)
+- `PTS_WRONG = 5` por tocar deseo (mín. 0)
+- **Aprueba con ≥ 70 pts**
+
+#### Indicador flotante de puntos:
+- Al clicar una tarjeta aparece un número (`+6` verde / `-5` rojo) en `position: fixed` en el centro de la tarjeta.
+- Sube y desaparece en 900ms con animación `ndPointPop`.
+- Implementado con estado `pointPops: PointPop[]` y `popCounter` ref para IDs únicos.
+
+#### Cuenta atrás (timer):
+- **Círculo** posicionado `position: absolute; top: 0.75rem; left: 2rem` dentro de `.nd-play-area`.
+- Tamaño: `clamp(5.5rem, 12vw, 7.5rem)`. Fuente: `clamp(2.5rem, 6.5vw, 3.8rem)`.
+- Color del borde y texto: verde → amarillo → rojo según `progress` (inline style).
+- Clase `--urgent` cuando `progress < 0.25`: fondo rojizo + pulso `ndTimerPulse`.
+- Valor: `Math.ceil(progress * ROUND_CONFIGS[round].ms / 1000)`.
+- Timer implementado con `requestAnimationFrame` para suavidad.
+
+#### Header durante gameplay:
+- **Izquierda:** puntuación (`nd-score-badge`) — `clamp(1.4rem, 3.5vw, 2rem)`.
+- **Centro:** "Ronda X / 8" (`nd-round-label`) — `clamp(1.3rem, 3vw, 1.8rem)`.
+- **Derecha:** botón ✕ para salir sin puntuar.
+
+#### Hint de juego:
+- Texto "Toca las NECESIDADES" — `clamp(1.4rem, 3.5vw, 2rem)`, pastilla oscura.
+
+#### Estados de ítems (`ItemPhase`): `active` → `correct` | `wrong` | `missed` | `ignored`
+- `correct`: flash verde + sube y desaparece
+- `wrong`: sacudida roja + desaparece
+- `missed`: pulso rojo al acabar tiempo (necesidad no tocada)
+- `ignored`: desvanece suave (deseo no tocado — correcto)
+
+#### Gestión de pools (sin repeticiones dentro de ronda):
+- `needPool` / `wantPool` como `useRef<Item[]>` — se inicializan al empezar y se reponen al agotarse.
+
+#### Bug crítico resuelto:
+El efecto `[roundPhase, round]` se re-ejecutaba con `roundPhase='ended'` cuando cambiaba `round`. Fix: llamar `setRoundPhase('active')` + `setRound(next)` en el mismo `setTimeout` para que React 18 los batchee en un único render.
+
+#### Estado del componente:
+```typescript
+const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
+const [round,       setRound]       = useState(0)
+const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('active')
+const [items,       setItems]       = useState<ItemState[]>([])
+const [score,       setScore]       = useState(0)
+const [progress,    setProgress]    = useState(1)
+const [leaving,     setLeaving]     = useState(false)
+const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
+const [pointPops,   setPointPops]   = useState<PointPop[]>([])
+const [showAnswers, setShowAnswers] = useState(false)
+
+const needPool   = useRef<Item[]>([])
+const wantPool   = useRef<Item[]>([])
+const popCounter = useRef(0)
+```
+
+#### Estructura CSS (clases clave):
+| Clase | Descripción |
+|-------|-------------|
+| `.nd-screen` | Raíz, flex column, 100vh |
+| `.nd-bg` | Fondo absoluto z-index 0 |
+| `.nd-overlay` | Overlay negro 0.65 permanente z-index 1 |
+| `.nd-intro` | Pantalla intro absoluta z-index 10 |
+| `.nd-header` | Header gameplay z-index 2 |
+| `.nd-play-area` | Área de juego, flex, position relative |
+| `.nd-countdown` | Círculo de cuenta atrás, absoluto en play-area |
+| `.nd-hint` | Texto "Toca las NECESIDADES" |
+| `.nd-items-grid` | Grid flex de tarjetas |
+| `.nd-item-card` | Tarjeta de objeto |
+| `.nd-result` | Resultado absoluto z-index 10, centrado |
+| `.nd-answers` | Pantalla respuestas absoluta z-index 20, opaca |
+| `.nd-result-items` | Contenedor dos columnas (answers screen) |
+| `.nd-point-pop` | Indicador flotante puntos, position fixed |
+| `.nd-btn--answers` | Botón verde "Ver respuestas" |
+| `.nd-btn--continue` | Botón naranja continuar/jugar |
+| `.nd-btn--retry` | Botón naranja reintentar |
+| `.nd-btn--map` | Botón translúcido "← Volver" (solo en answers) |
+
+---
 
 ### 1. 💸 ¿Cuánto cuesta?
 - Mostrar producto → elegir rango de precio (<1€, 1-5€, 5-20€, >20€)
@@ -195,6 +327,7 @@ const [points, setPoints]            // number — puntuación acumulada
 - En IntroScreen: typewriter con bocadillo
 - En CharacterSelect / FichaSelect: estático con bocadillo fijo
 - En MapScreen: arriba a la derecha, bocadillo a su izquierda con typewriter, mensaje según progreso
+- En NecesidadDeseo intro: bocadillo con dos slides navegables
 
 ---
 
@@ -211,4 +344,8 @@ const [points, setPoints]            // number — puntuación acumulada
 - Las imágenes del `/public/` se referencian desde la raíz: `/Cerdito.png` etc.
 - Los botones deshabilitados usan `disabled` + `opacity: 0.4`, **nunca se ocultan**
 - Las transiciones entre pantallas duran 550ms con clase CSS `--leaving`
-- Al implementar un minijuego real, sustituye el bloque `if (screen === 'minigame')` en `App.tsx` por el componente correspondiente; debe recibir `player` y llamar a `onComplete(score: number)` al terminar
+- Al implementar un minijuego real, añade un `if (currentGame === N)` dentro del bloque `if (screen === 'minigame')` en `App.tsx`; el componente recibe `onComplete(score: number)` y `onBack()`
+- Ver `NecesidadDeseo.tsx` como referencia de estructura: fases `intro → playing → result`, timer con RAF, pools de ítems con `useRef`, transición de salida con clase `--leaving` + 550ms
+- **Patrón de avance entre rondas:** siempre hacer batch de `setRoundPhase('active') + setRound(next)` en el mismo callback para evitar que el efecto de `roundPhase==='ended'` se re-ejecute con el nuevo índice de ronda
+- **Overlay permanente:** en NecesidadDeseo el fondo oscuro está siempre visible mediante `<div className="nd-overlay" />` (z-index 1), no dentro de cada fase individualmente
+- **Pantallas superpuestas:** las pantallas de resultado (`z-index: 10`) y respuestas (`z-index: 20`) son `position: absolute; inset: 0` dentro de `nd-screen`, apiladas sobre el gameplay

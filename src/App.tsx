@@ -4,6 +4,7 @@ import IntroScreen from './components/IntroScreen'
 import CharacterSelect from './components/CharacterSelect'
 import FichaSelect from './components/FichaSelect'
 import MapScreen from './components/MapScreen'
+import NecesidadDeseo from './components/NecesidadDeseo'
 
 type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
@@ -65,25 +66,27 @@ function App() {
     )
   }
 
-  // Placeholder de minijuego — sustituir por cada minijuego real
   if (screen === 'minigame' && player && currentGame !== null) {
-    const gameNames = [
-      'Necesidad vs Deseo',
-      '¿Cuánto cuesta?',
-      'Ahorro con Objetivo',
-      'Comparar Ofertas',
-      'El Cambio',
-    ]
-
-    const handleComplete = () => {
-      if (!completedGames.includes(currentGame)) {
+    const handleComplete = (score: number) => {
+      if (score >= 70 && !completedGames.includes(currentGame)) {
         setCompleted((prev) => [...prev, currentGame])
-        setPoints((prev) => prev + 100)
+        setPoints((prev) => prev + score)
       }
       setCurrentGame(null)
       setScreen('map')
     }
 
+    const handleBack = () => {
+      setCurrentGame(null)
+      setScreen('map')
+    }
+
+    if (currentGame === 0) {
+      return <NecesidadDeseo onComplete={handleComplete} onBack={handleBack} />
+    }
+
+    // Placeholder for minigames 1–4 (not yet implemented)
+    const gameNames = ['', '¿Cuánto cuesta?', 'Ahorro con Objetivo', 'Comparar Ofertas', 'El Cambio']
     return (
       <div style={{
         minHeight: '100vh',
@@ -97,31 +100,31 @@ function App() {
         padding: '2rem',
       }}>
         <h2 style={{ color: '#e65100', fontSize: '2.2rem', margin: 0, textAlign: 'center' }}>
-          🎮 {gameNames[currentGame]}
+          {gameNames[currentGame]}
         </h2>
         <p style={{ color: '#555', fontSize: '1.2rem', textAlign: 'center' }}>
           Minijuego en construcción...
         </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
-            onClick={handleComplete}
+            onClick={() => handleComplete(100)}
             style={{
               padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
               border: 'none', background: 'linear-gradient(135deg, #2e7d32, #66bb6a)',
               color: '#fff', cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #1b5e20',
             }}
           >
-            ✓ Completar (prueba)
+            Completar (prueba)
           </button>
           <button
-            onClick={() => { setCurrentGame(null); setScreen('map') }}
+            onClick={handleBack}
             style={{
               padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
               border: 'none', background: '#ff6f00', color: '#fff',
               cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #bf360c',
             }}
           >
-            ← Volver al mapa
+            Volver al mapa
           </button>
         </div>
       </div>
