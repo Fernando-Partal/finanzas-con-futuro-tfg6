@@ -63,7 +63,7 @@
 
 .ao-intro-bubble {
   padding: 0.9em 1.5em;
-  max-width: min(520px, 88vw);
+  max-width: min(480px, 88vw);
   margin-bottom: 14px;
 }
 
@@ -413,24 +413,6 @@
 
 .ao-question strong {
   color: #e65100;
-}
-
-.ao-math-strip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 16px;
-  background: rgba(21, 101, 192, 0.1);
-  color: #1565c0;
-  font-size: clamp(1.1rem, 2.8vw, 1.55rem);
-  font-weight: 900;
-}
-
-.ao-math-strip strong {
-  color: #2e7d32;
 }
 
 .ao-answer-actions {

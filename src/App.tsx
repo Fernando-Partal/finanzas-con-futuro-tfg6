@@ -7,6 +7,7 @@ import MapScreen from './components/MapScreen'
 import NecesidadDeseo from './components/NecesidadDeseo'
 import PrecioCosas from './components/PrecioCosas'
 import AhorroObjetivo from './components/AhorroObjetivo'
+import CompararOfertas from './components/CompararOfertas'
 
 type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
@@ -37,11 +38,11 @@ interface PlayerData {
 //     screen: 'minigame', currentGame: 2
 // =============================================================================
 const DEBUG = {
-  enabled: true,
+  enabled: false,
 
-  screen:         'map'    as Screen,
-  currentGame:    2     as number | null,
-  completedGames: [0,1]       as number[],
+  screen:         'minigame' as Screen,
+  currentGame:    3          as number | null,
+  completedGames: [0, 1, 2]  as number[],
   points:         200,
   player: {
     name:      'Tester',
@@ -131,6 +132,10 @@ function App() {
 
     if (currentGame === 2) {
       return <AhorroObjetivo onComplete={handleComplete} onBack={handleBack} />
+    }
+
+    if (currentGame === 3) {
+      return <CompararOfertas onComplete={handleComplete} onBack={handleBack} />
     }
 
     // Placeholder for minigames 1–4 (not yet implemented)

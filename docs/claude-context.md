@@ -38,7 +38,8 @@ src/
     ├── NecesidadDeseo.tsx / .css    ← Minijuego 0 — IMPLEMENTADO ✅
     ├── PrecioCosas.tsx / .css       ← Minijuego 1 — IMPLEMENTADO ✅
     ├── AhorroObjetivo.tsx / .css    ← Minijuego 2 — IMPLEMENTADO ✅
-    └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuego 2)
+    ├── CompararOfertas.tsx / .css   ← Minijuego 3 — IMPLEMENTADO ✅
+    └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2 y 3)
 
 public/
 ├── Cerdito.png          ← Mascota principal (Huchín)
@@ -141,7 +142,8 @@ const [points, setPoints]            // number — puntuación acumulada
 - Para `currentGame === 0`: renderiza `<NecesidadDeseo>` ✅
 - Para `currentGame === 1`: renderiza `<PrecioCosas>` ✅
 - Para `currentGame === 2`: renderiza `<AhorroObjetivo>` ✅
-- Para `currentGame === 3–4`: placeholder genérico (botón "Completar prueba")
+- Para `currentGame === 3`: renderiza `<CompararOfertas>` ✅
+- Para `currentGame === 4`: placeholder genérico (botón "Completar prueba")
 - **Contrato de los minijuegos:** reciben `onComplete(score: number)` y `onBack()`
 - `onComplete`: umbral de aprobado **condicional por minijuego**:
   - Minijuego 2: `score >= 50`
@@ -158,7 +160,7 @@ const [points, setPoints]            // number — puntuación acumulada
 | 0      | Necesidad vs Deseo   | ✅ Implementado |
 | 1      | ¿Cuánto cuesta?      | ✅ Implementado |
 | 2      | Ahorro con Objetivo  | ✅ Implementado |
-| 3      | Comparar Ofertas     | 🔲 Pendiente |
+| 3      | Comparar Ofertas     | ✅ Implementado |
 | 4      | El Cambio            | 🔲 Pendiente |
 
 ---
@@ -346,11 +348,11 @@ const dragInfo = useRef<{ price: string; from: 'bank' | number } | null>(null)
 
 #### Fases del componente (`GamePhase`):
 1. `'intro'` — Huchín con bocadillo. **Tres pasos** (`IntroStep = 1 | 2 | 3`):
-   - Paso 1: explica el concepto de ahorro por objetivo. Botón "Continuar".
-   - Paso 2: explica la mecánica (`ahorro semanal × semanas`). Botón "Continuar".
-   - Paso 3 (no es slide, es pantalla aparte): **selección de objetivo** — layout izquierda/derecha como FichaSelect. Huchín izquierda con bocadillo; derecha: grid 2×2 de tarjetas seleccionables + botón "Empezar" (deshabilitado hasta elegir).
+   - Paso 1: explica el concepto de ahorro por objetivo. Botón "Continuar →".
+   - Paso 2: explica la mecánica (`ahorro semanal × semanas`). Botón "¡Entendido! ¡Jugar!".
+   - Paso 3 (no es slide, es pantalla aparte): **selección de objetivo** — layout izquierda/derecha como FichaSelect. Huchín izquierda con bocadillo; derecha: grid 2×2 de tarjetas seleccionables + botón "¡Empezar!" (deshabilitado hasta elegir).
 2. `'playing'` — Gameplay activo (3 rondas por objetivo).
-3. `'result'` — Puntuación + mensaje pass/fail + botón Continuar o Reintentar.
+3. `'result'` — Puntuación + mensaje pass/fail + botón "¡Continuar!" o "¡Intentar de nuevo!".
 
 > **Diferencia clave respecto al patrón estándar:** la intro tiene 3 pasos en lugar de 2 slides; el paso 3 es la selección de objetivo, no un slide más de Huchín.
 
@@ -360,7 +362,7 @@ const dragInfo = useRef<{ price: string; from: 'bank' | number } | null>(null)
 | `play5` | Play5 | 500 € |
 | `viaje` | Viaje | 240 € |
 | `bicicleta` | Bicicleta | 90 € |
-| `movil` | Movil | 180 € |
+| `movil` | Móvil | 180 € |
 
 > **Nota:** actualmente todos los objetivos usan `/Articulos/Bicicleta.png` como imagen placeholder. Pendiente asignar imágenes propias a cada objetivo.
 
@@ -374,7 +376,7 @@ Los números son deliberadamente no triviales (ningún múltiplo redondo de ×10
 | Play5 (500 €) | 35×14=490 ❌ | 45×12=540 ✅ | 28×18=504 ✅ |
 | Viaje (240 €) | 32×7=224 ❌ | 24×11=264 ✅ | 16×15=240 ✅ (justo) |
 | Bicicleta (90 €) | 12×8=96 ✅ | 13×6=78 ❌ | 15×7=105 ✅ |
-| Movil (180 €) | 22×9=198 ✅ | 18×9=162 ❌ | 14×13=182 ✅ (por poco) |
+| Móvil (180 €) | 22×9=198 ✅ | 18×9=162 ❌ | 14×13=182 ✅ (por poco) |
 
 #### Puntuación:
 - `ROUND_POINTS = [33, 33, 34]` — los tres suman 100
@@ -415,8 +417,8 @@ const [leaving,            setLeaving]            = useState(false)
 - Al llegar a la última ronda: `setGamePhase('result')`
 
 #### Pantalla de resultado:
-- Si **aprueba** (≥ 50 pts): bocadillo verde + puntuación en verde claro (`#b9f6ca`) + botón "Continuar"
-- Si **suspende**: bocadillo rojo + puntuación en naranja claro (`#ffccbc`) + botón "Intentar de nuevo"
+- Si **aprueba** (≥ 50 pts): bocadillo verde + puntuación en verde claro (`#b9f6ca`) + botón "¡Continuar!"
+- Si **suspende**: bocadillo rojo + puntuación en naranja claro (`#ffccbc`) + botón "¡Intentar de nuevo!"
 - Sin botón "Volver al mapa" ni "Ver respuestas"
 
 #### Clases CSS clave (prefijo `ao-`):
@@ -444,9 +446,90 @@ const [leaving,            setLeaving]            = useState(false)
 
 ---
 
-### 3. 🏷️ Comparar Ofertas — 🔲 PENDIENTE
-- Varias opciones de un producto → elegir la mejor (precio/unidad)
-- Explicación del resultado
+### 3. 🏷️ Comparar Ofertas — ✅ IMPLEMENTADO
+**Archivo:** `src/components/CompararOfertas.tsx` / `.css`  
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` — mismo que minijuegos 0, 1 y 2.  
+**Componente auxiliar:** `Calculator.tsx` — calculadora en esquina inferior derecha, misma integración que Minijuego 2.
+
+#### Fases del componente (`GamePhase`):
+1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables (patrón estándar).
+   - Slide 1: bienvenida, explica el concepto de comparar ofertas.
+   - Slide 2: instrucciones (cantidad + precio → mejor precio por unidad/kilo). Botón "¡Entendido! ¡Jugar!".
+2. `'playing'` — Gameplay activo (6 rondas).
+3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
+
+#### Mecánica de juego:
+- 6 rondas: 2 fáciles, 2 medias, 2 difíciles
+- En cada ronda: mismo producto en **2 opciones** (fácil/medio) o **3 opciones** (difícil)
+- El alumno elige la opción con **mejor precio por unidad o por kilo**
+- Tras elegir: feedback 1 800 ms mostrando el precio por unidad de **todas** las opciones para aprender por qué una es mejor
+- Calculadora visible en todo momento para ayudar
+
+#### Rondas (`ROUNDS`):
+| # | Dificultad | Producto | Ganadora | Lección pedagógica |
+|---|-----------|----------|----------|--------------------|
+| 1 | Fácil | Leche | 3 bricks (2,40 €) → **0,80 €/ud** | El pack más grande sale mejor |
+| 2 | Fácil | Refresco | 2 botellas (1,60 €) → **0,80 €/botella** | El pack más pequeño/barato puede salir mejor |
+| 3 | Medio | Arroz | 500 g (0,65 €) → **1,30 €/kg** | El envase más barato puede costar menos por kilo |
+| 4 | Medio | Pasta | 500 g (1,10 €) → **2,20 €/kg** | El pack más grande sale mejor por kilo |
+| 5 | Difícil | Fruta | 750 g (1,80 €) → **2,40 €/kg** | Ni el más barato ni el más caro: hay que calcular |
+| 6 | Difícil | Chocolate | Promo 3×2 (2,40 €) → **0,80 €/tableta** | Promoción 3×2: pagas 2, llevas 3 |
+
+> **Clave pedagógica:** no siempre la opción más cara o la más grande es la mejor. Rondas 2 y 3 invierten la expectativa; ronda 5 el ganador es el precio intermedio.
+
+#### Puntuación:
+- Fáciles: 15 pts × 2 = 30 pts
+- Medias: 20 pts × 2 = 40 pts
+- Difíciles: 15 pts × 2 = 30 pts
+- Total máximo: **100 pts**
+- **Aprueba con ≥ 70 pts** — permisivo con las difíciles: aprobar fáciles + medias (70 pts) ya es suficiente para pasar aunque fallen las dos difíciles
+
+#### Feedback visual por ronda:
+- `roundPhase: 'choosing' | 'feedback'`
+- Al seleccionar: `selectedId` se fija, `setRoundPhase('feedback')`
+- Tarjeta correcta → clase `co-option-card--correct` (verde + `coCorrectFlash`) + badge ✓
+- Tarjeta errónea seleccionada → clase `co-option-card--wrong` (rojo + `coWrongShake`) + badge ✗
+- Resto de tarjetas → clase `co-option-card--dim` (opacidad 0.4)
+- Todas las tarjetas muestran su `perUnitLabel` durante el feedback
+- Después de 1 800 ms → batch `setRoundPhase('choosing') + setRound(next)` (mismo patrón React 18)
+
+#### Estado del componente:
+```typescript
+const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
+const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
+const [round,       setRound]       = useState(0)
+const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('choosing')
+const [selectedId,  setSelectedId]  = useState<string | null>(null)
+const [score,       setScore]       = useState(0)
+const [leaving,     setLeaving]     = useState(false)
+```
+
+#### Clases CSS clave (prefijo `co-`):
+| Clase | Descripción |
+|-------|-------------|
+| `.co-screen` | Raíz, flex column, 100vh |
+| `.co-bg` / `.co-overlay` | Fondo + overlay negro 0.65 |
+| `.co-intro` | Intro absoluta z-index 10 |
+| `.co-intro-bubble` | Bocadillo con `key={introSlide}` para reanimar `coPopIn` |
+| `.co-header` | Header gameplay z-index 2 |
+| `.co-score-badge` | Contador naranja/dorado |
+| `.co-play-area` | Área de juego, `padding-right: 15rem` para la calculadora |
+| `.co-challenge` | Panel blanco central con `key={round}` para reanimar |
+| `.co-challenge-top` | Fila imagen producto + badge dificultad + nombre |
+| `.co-difficulty--easy/medium/hard` | Pill coloreado: verde/naranja/rojo |
+| `.co-options` | Flex row de tarjetas; `padding-top: 14px` para el badge de promo |
+| `.co-options--2` / `.co-options--3` | 2 o 3 tarjetas en fila |
+| `.co-option-card` | Tarjeta seleccionable (botón) |
+| `.co-option-card--correct` | Flash verde + `coCorrectFlash` |
+| `.co-option-card--wrong` | Sacudida roja + `coWrongShake` |
+| `.co-option-card--dim` | Opacidad 0.4 para opciones no elegidas en feedback |
+| `.co-promo-badge` | Pill naranja "★ Promo" absoluto en top de tarjeta |
+| `.co-card-badge--ok/no` | Círculo ✓/✗ en esquina superior derecha de tarjeta |
+| `.co-per-unit` | Precio por unidad/kilo (visible solo en feedback) |
+| `.co-per-unit--best` | Verde para la opción ganadora |
+| `.co-feedback` | Texto feedback correcto/incorrecto |
+| `.co-calculator` | Calculadora anclada esquina inferior derecha |
+| `.co-result` | Resultado absoluto z-index 10 |
 
 ### 4. 💰 El Cambio — 🔲 PENDIENTE
 - Modelo: producto + precio, billete de pago, cálculo de cambio
@@ -520,6 +603,7 @@ const [screen, setScreen] = useState<Screen>(D?.screen ?? 'home')
 | Minijuego 0 directo | `'minigame'` | `0` | `[]` |
 | Minijuego 1 directo | `'minigame'` | `1` | `[]` |
 | Minijuego 2 directo | `'minigame'` | `2` | `[]` |
+| Minijuego 3 directo | `'minigame'` | `3` | `[]` |
 
 ### Notas técnicas:
 - El objeto `DEBUG` se evalúa **una sola vez** al cargar el módulo — sin coste en renders.

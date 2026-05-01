@@ -28,7 +28,7 @@ const GOALS: Goal[] = [
   { id: 'play5', name: 'Play5', price: 500, img: '/Articulos/Bicicleta.png' },
   { id: 'viaje', name: 'Viaje', price: 240, img: '/Articulos/Bicicleta.png' },
   { id: 'bicicleta', name: 'Bicicleta', price: 90, img: '/Articulos/Bicicleta.png' },
-  { id: 'movil', name: 'Movil', price: 180, img: '/Articulos/Bicicleta.png' },
+  { id: 'movil', name: 'Móvil', price: 180, img: '/Articulos/Bicicleta.png' },
 ]
 
 const ROUNDS_BY_GOAL: Record<GoalId, Round[]> = {
@@ -124,23 +124,29 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
             <div className="ao-intro-bubble" key={introStep}>
               {introStep === 1 ? (
                 <>
-                  <p>Bienvenido al reto <strong>Ahorro con objetivo</strong>.</p>
+                  <p>¡Bienvenido al reto <strong>Ahorro con objetivo</strong>!</p>
                   <p>Cuando queremos comprar algo grande, podemos guardar un poco de dinero cada semana.</p>
-                  <p>Asi el objetivo se acerca paso a paso.</p>
+                  <p>¡Así el objetivo se acerca paso a paso!</p>
                 </>
               ) : (
                 <>
-                  <p>Veras cuanto ahorras <strong>cada semana</strong> y durante <strong>cuantas semanas</strong>.</p>
+                  <p>Verás cuánto ahorras <strong>cada semana</strong> y durante <strong>cuántas semanas</strong>.</p>
                   <p>Usa la calculadora para saber el total y decide: <strong>¿llegas al precio o no?</strong></p>
-                  <p>Si llegas, pulsa <strong>Si</strong>. Si te falta dinero, pulsa <strong>No</strong>.</p>
+                  <p>Si llegas, pulsa <strong>Sí</strong>. Si te falta dinero, pulsa <strong>No</strong>.</p>
                 </>
               )}
             </div>
-            <img src="/Cerdito.png" alt="Huchin" className="ao-intro-huchin" />
+            <img src="/Cerdito.png" alt="Huchín" className="ao-intro-huchin" />
           </div>
-          <button className="ao-btn ao-btn--continue" onClick={() => setIntroStep(introStep === 1 ? 2 : 3)}>
-            Continuar
-          </button>
+          {introStep === 1 ? (
+            <button className="ao-btn ao-btn--continue" onClick={() => setIntroStep(2)}>
+              Continuar →
+            </button>
+          ) : (
+            <button className="ao-btn ao-btn--continue" onClick={() => setIntroStep(3)}>
+              ¡Entendido! ¡Jugar!
+            </button>
+          )}
         </div>
       )}
 
@@ -148,8 +154,8 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
         <div className="ao-goal-select">
           <div className="ao-goal-left">
             <div className="ao-goal-huchin-wrap">
-              <div className="ao-goal-bubble">Elige tu objetivo de ahorro.</div>
-              <img src="/Cerdito.png" alt="Huchin" className="ao-goal-huchin" />
+              <div className="ao-goal-bubble">¡Elige tu objetivo de ahorro!</div>
+              <img src="/Cerdito.png" alt="Huchín" className="ao-goal-huchin" />
             </div>
           </div>
 
@@ -170,7 +176,7 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
             </div>
 
             <button className="ao-btn ao-btn--continue" type="button" onClick={startGame} disabled={!selectedGoal}>
-              Empezar
+              ¡Empezar!
             </button>
           </div>
         </div>
@@ -183,7 +189,7 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
               {score} <span className="ao-score-label">pts</span>
             </div>
             <div className="ao-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
-            <button className="ao-exit-btn" onClick={() => exit(false)} aria-label="Salir">x</button>
+            <button className="ao-exit-btn" onClick={() => exit(false)} aria-label="Salir">✕</button>
           </header>
 
           <main className="ao-play-area">
@@ -205,7 +211,7 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
 
               <p className="ao-question">
                 Si ahorro <strong>{currentRound.weekly} €</strong> a la semana...
-                en <strong>{currentRound.weeks} semanas</strong>, ¿he llegado a comprarmelo?
+                en <strong>{currentRound.weeks} semanas</strong>, ¿he llegado a comprármelo?
               </p>
 
               <div className="ao-answer-actions">
@@ -215,7 +221,7 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
                   onClick={() => handleAnswer(true)}
                   disabled={roundPhase !== 'answering'}
                 >
-                  Si
+                  Sí
                 </button>
                 <button
                   className="ao-answer-btn ao-answer-btn--no"
@@ -229,7 +235,7 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
 
               {roundPhase === 'feedback' && (
                 <div className={`ao-feedback${lastAnswerCorrect ? ' ao-feedback--correct' : ' ao-feedback--wrong'}`}>
-                  {lastAnswerCorrect ? 'Correcto' : 'Casi. Mira bien la multiplicacion.'}
+                  {lastAnswerCorrect ? '¡Correcto!' : '¡Casi! Mira bien la multiplicación.'}
                 </div>
               )}
             </section>
@@ -244,10 +250,10 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
           <div className="ao-result-huchin-wrap">
             <div className={`ao-result-bubble${passed ? ' ao-result-bubble--pass' : ' ao-result-bubble--fail'}`}>
               {passed
-                ? 'Muy bien. Ya sabes planear un ahorro.'
-                : 'Casi. Prueba otra vez con la calculadora.'}
+                ? '¡Muy bien! ¡Ya sabes planear un ahorro!'
+                : '¡Casi! Prueba otra vez con la calculadora.'}
             </div>
-            <img src="/Cerdito.png" alt="Huchin" className="ao-result-huchin" />
+            <img src="/Cerdito.png" alt="Huchín" className="ao-result-huchin" />
           </div>
 
           <div className={`ao-result-score${passed ? ' ao-result-score--pass' : ' ao-result-score--fail'}`}>
@@ -256,18 +262,18 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
 
           <p className="ao-result-sub">
             {passed
-              ? 'Has desbloqueado el siguiente nivel.'
+              ? '¡Has desbloqueado el siguiente nivel!'
               : 'Necesitas 50 puntos para avanzar al siguiente nivel.'}
           </p>
 
           <div className="ao-result-actions">
             {passed ? (
               <button className="ao-btn ao-btn--continue" onClick={() => exit(true)}>
-                Continuar
+                ¡Continuar!
               </button>
             ) : (
               <button className="ao-btn ao-btn--retry" onClick={() => exit(false)}>
-                Intentar de nuevo
+                ¡Intentar de nuevo!
               </button>
             )}
           </div>
