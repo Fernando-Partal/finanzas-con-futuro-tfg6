@@ -5,6 +5,8 @@ import CharacterSelect from './components/CharacterSelect'
 import FichaSelect from './components/FichaSelect'
 import MapScreen from './components/MapScreen'
 import NecesidadDeseo from './components/NecesidadDeseo'
+import PrecioCosas from './components/PrecioCosas'
+import AhorroObjetivo from './components/AhorroObjetivo'
 
 type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
@@ -14,12 +16,49 @@ interface PlayerData {
   ficha: 'coche' | 'perro' | 'pato'
 }
 
+// =============================================================================
+// DEBUG — pon `enabled: true` y edita los campos para saltar a cualquier estado
+//
+// Presets de ejemplo (copia uno en los campos de abajo):
+//
+//   Mapa vacío (solo nodo 0 activo):
+//     screen: 'map', completedGames: [], currentGame: null, points: 0
+//
+//   Mapa con primeros 3 completados:
+//     screen: 'map', completedGames: [0, 1, 2], currentGame: null, points: 300
+//
+//   Ir directo al minijuego 0 (Necesidad vs Deseo):
+//     screen: 'minigame', currentGame: 0
+//
+//   Ir directo al minijuego 1 (¿Cuánto cuesta?):
+//     screen: 'minigame', currentGame: 1
+//
+//   Ir directo al minijuego 2 (Ahorro con Objetivo):
+//     screen: 'minigame', currentGame: 2
+// =============================================================================
+const DEBUG = {
+  enabled: true,
+
+  screen:         'map'    as Screen,
+  currentGame:    2     as number | null,
+  completedGames: [0,1]       as number[],
+  points:         200,
+  player: {
+    name:      'Tester',
+    character: 'boy'   as const,
+    ficha:     'perro' as const,
+  },
+}
+// =============================================================================
+
+const D = DEBUG.enabled ? DEBUG : null
+
 function App() {
-  const [screen, setScreen]            = useState<Screen>('home')
-  const [player, setPlayer]            = useState<PlayerData | null>(null)
-  const [completedGames, setCompleted] = useState<number[]>([])
-  const [currentGame, setCurrentGame]  = useState<number | null>(null)
-  const [points, setPoints]            = useState<number>(0)
+  const [screen, setScreen]            = useState<Screen>(D?.screen ?? 'home')
+  const [player, setPlayer]            = useState<PlayerData | null>(D?.player ?? null)
+  const [completedGames, setCompleted] = useState<number[]>(D?.completedGames ?? [])
+  const [currentGame, setCurrentGame]  = useState<number | null>(D?.currentGame ?? null)
+  const [points, setPoints]            = useState<number>(D?.points ?? 0)
 
   if (screen === 'home') {
     return <HomeScreen onStart={() => setScreen('intro')} />
@@ -68,7 +107,8 @@ function App() {
 
   if (screen === 'minigame' && player && currentGame !== null) {
     const handleComplete = (score: number) => {
-      if (score >= 70 && !completedGames.includes(currentGame)) {
+      const passScore = currentGame === 2 ? 50 : 70
+      if (score >= passScore && !completedGames.includes(currentGame)) {
         setCompleted((prev) => [...prev, currentGame])
         setPoints((prev) => prev + score)
       }
@@ -83,6 +123,14 @@ function App() {
 
     if (currentGame === 0) {
       return <NecesidadDeseo onComplete={handleComplete} onBack={handleBack} />
+    }
+
+    if (currentGame === 1) {
+      return <PrecioCosas onComplete={handleComplete} onBack={handleBack} />
+    }
+
+    if (currentGame === 2) {
+      return <AhorroObjetivo onComplete={handleComplete} onBack={handleBack} />
     }
 
     // Placeholder for minigames 1–4 (not yet implemented)
