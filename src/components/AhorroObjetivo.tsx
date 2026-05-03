@@ -25,10 +25,10 @@ interface Round {
 }
 
 const GOALS: Goal[] = [
-  { id: 'play5', name: 'Play5', price: 500, img: '/Articulos/Bicicleta.png' },
-  { id: 'viaje', name: 'Viaje', price: 240, img: '/Articulos/Bicicleta.png' },
+  { id: 'play5', name: 'Play5', price: 500, img: '/Articulos/Play5.png' },
+  { id: 'viaje', name: 'Viaje', price: 240, img: '/Articulos/Viaje.png' },
   { id: 'bicicleta', name: 'Bicicleta', price: 90, img: '/Articulos/Bicicleta.png' },
-  { id: 'movil', name: 'Móvil', price: 180, img: '/Articulos/Bicicleta.png' },
+  { id: 'movil', name: 'Móvil', price: 180, img: '/Articulos/Movil.png' },
 ]
 
 const ROUNDS_BY_GOAL: Record<GoalId, Round[]> = {

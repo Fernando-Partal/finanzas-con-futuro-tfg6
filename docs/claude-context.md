@@ -39,7 +39,8 @@ src/
     ├── PrecioCosas.tsx / .css       ← Minijuego 1 — IMPLEMENTADO ✅
     ├── AhorroObjetivo.tsx / .css    ← Minijuego 2 — IMPLEMENTADO ✅
     ├── CompararOfertas.tsx / .css   ← Minijuego 3 — IMPLEMENTADO ✅
-    └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2 y 3)
+    ├── ElCambio.tsx / .css          ← Minijuego 4 — IMPLEMENTADO ✅
+    └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2, 3 y 4)
 
 public/
 ├── Cerdito.png          ← Mascota principal (Huchín)
@@ -50,17 +51,24 @@ public/
 ├── FichaCoche.png       ← Ficha seleccionable: coche
 ├── FichaPerro.png       ← Ficha seleccionable: perro
 ├── FichaPato.png        ← Ficha seleccionable: pato
-├── FondoMinijuego1.png  ← Fondo compartido por minijuegos 0 y 1
-└── Articulos/           ← 16 imágenes de productos (necesidades y deseos)
-    ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png,
-    │   Leche.png, Pasta.png, Pescado.png, Verduras.png   ← NECESIDADES (8)
-    └── Bicicleta.png, Chocolate.png, Chucherias.png,
-        CocheTeledirigido.png, Donuts.png, MandoPlay.png,
-        Muñeca.png, Refresco.png                          ← DESEOS (8)
+├── FondoMinijuego1.png  ← Fondo compartido por todos los minijuegos
+├── Articulos/           ← Imágenes de productos
+│   ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png,
+│   │   Leche.png, Pasta.png, Pescado.png, Verduras.png      ← NECESIDADES (8)
+│   ├── Bicicleta.png, Chocolate.png, Chucherias.png,
+│   │   CocheTeledirigido.png, Donuts.png, MandoPlay.png,
+│   │   Muñeca.png, Refresco.png                             ← DESEOS (8)
+│   ├── CajaRegistradora.png                                 ← Icono caja registradora (MJ4)
+│   ├── Movil.png, Play5.png, Viaje.png                      ← Objetivos de ahorro (MJ2)
+└── Dinero/              ← Imágenes de monedas y billetes (MJ4)
+    ├── 1centimo.png, 2centimos.png, 5centimos.png
+    ├── 10centimos.png, 20centimos.png, 50centimos.png
+    ├── 1euro.png, 2 euros.png, 5euros.png
+    └── 10euros.png, 20euros.png
 ```
 
 > Las imágenes están en `/public/` y se referencian desde la raíz: `/Cerdito.png`, etc.
-> La carpeta `Articulos/` se ampliará en el futuro con más imágenes.
+> El archivo `2 euros.png` tiene un espacio — referenciarlo como `/Dinero/2%20euros.png` en el código.
 
 ---
 
@@ -143,7 +151,7 @@ const [points, setPoints]            // number — puntuación acumulada
 - Para `currentGame === 1`: renderiza `<PrecioCosas>` ✅
 - Para `currentGame === 2`: renderiza `<AhorroObjetivo>` ✅
 - Para `currentGame === 3`: renderiza `<CompararOfertas>` ✅
-- Para `currentGame === 4`: placeholder genérico (botón "Completar prueba")
+- Para `currentGame === 4`: renderiza `<ElCambio>` ✅
 - **Contrato de los minijuegos:** reciben `onComplete(score: number)` y `onBack()`
 - `onComplete`: umbral de aprobado **condicional por minijuego**:
   - Minijuego 2: `score >= 50`
@@ -161,14 +169,14 @@ const [points, setPoints]            // number — puntuación acumulada
 | 1      | ¿Cuánto cuesta?      | ✅ Implementado |
 | 2      | Ahorro con Objetivo  | ✅ Implementado |
 | 3      | Comparar Ofertas     | ✅ Implementado |
-| 4      | El Cambio            | 🔲 Pendiente |
+| 4      | El Cajero            | ✅ Implementado |
 
 ---
 
 ## 🧩 Minijuegos
 
 ### 0. 🛒 Necesidad vs Deseo — ✅ IMPLEMENTADO
-**Archivo:** `src/components/NecesidadDeseo.tsx` / `.css`  
+**Archivo:** `src/components/NecesidadDeseo.tsx` / `.css`
 **Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` sobre toda la pantalla.
 
 #### Fases del componente (`GamePhase`):
@@ -190,50 +198,10 @@ const [points, setPoints]            // number — puntuación acumulada
 - Sin botones de categoría — interacción directa sobre las tarjetas
 - Rondas cada vez más cortas y con más deseos que necesidades
 
-#### Configuración de rondas (`ROUND_CONFIGS`):
-| Ronda | n (necesidades) | d (deseos) | Duración |
-|-------|-----------------|------------|----------|
-| 1 | 3 | 1 | 9 s |
-| 2 | 3 | 2 | 8 s |
-| 3 | 2 | 3 | 7 s |
-| 4 | 2 | 3 | 6 s |
-| 5 | 2 | 3 | 5 s |
-| 6 | 2 | 4 | 4 s |
-| 7 | 2 | 4 | 3 s |
-| 8 | 2 | 4 | 2.5 s |
-
-Total necesidades: 18. `PTS_CORRECT = 6` → 18 × 6 = 108 → cap 100.
-
 #### Puntuación:
 - `PTS_CORRECT = 6` por tocar necesidad (cap global en 100)
 - `PTS_WRONG = 5` por tocar deseo (mín. 0)
 - **Aprueba con ≥ 70 pts**
-
-#### Detalles técnicos:
-- Timer con `requestAnimationFrame`; círculo de cuenta atrás verde → amarillo → rojo
-- Clase `--urgent` cuando `progress < 0.25`: fondo rojizo + pulso `ndTimerPulse`
-- Pools sin repetición: `needPool` / `wantPool` como `useRef<Item[]>`, se reponen al agotarse
-- Indicador flotante de puntos: `pointPops: PointPop[]` + `popCounter` ref, `position: fixed`, animación 900ms
-- Estados de ítem: `active` → `correct` | `wrong` | `missed` | `ignored`
-- **Bug crítico resuelto:** `setRoundPhase('active') + setRound(next)` en el mismo `setTimeout` para que React 18 los batchee y el efecto no se re-ejecute con `roundPhase='ended'` en el nuevo round
-
-#### Estado del componente:
-```typescript
-const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
-const [round,       setRound]       = useState(0)
-const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('active')
-const [items,       setItems]       = useState<ItemState[]>([])
-const [score,       setScore]       = useState(0)
-const [progress,    setProgress]    = useState(1)
-const [leaving,     setLeaving]     = useState(false)
-const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
-const [pointPops,   setPointPops]   = useState<PointPop[]>([])
-const [showAnswers, setShowAnswers] = useState(false)
-
-const needPool   = useRef<Item[]>([])
-const wantPool   = useRef<Item[]>([])
-const popCounter = useRef(0)
-```
 
 #### Clases CSS clave (prefijo `nd-`):
 | Clase | Descripción |
@@ -244,117 +212,55 @@ const popCounter = useRef(0)
 | `.nd-intro` | Pantalla intro absoluta z-index 10 |
 | `.nd-header` | Header gameplay z-index 2 |
 | `.nd-play-area` | Área de juego, flex, position relative |
-| `.nd-countdown` | Círculo de cuenta atrás, absoluto en play-area |
-| `.nd-hint` | Texto "Toca las NECESIDADES" |
-| `.nd-items-grid` | Grid flex de tarjetas |
-| `.nd-item-card` | Tarjeta de objeto |
 | `.nd-result` | Resultado absoluto z-index 10, centrado |
 | `.nd-answers` | Pantalla respuestas absoluta z-index 20, opaca |
 | `.nd-point-pop` | Indicador flotante puntos, position fixed |
-| `.nd-btn--answers` | Botón verde "Ver respuestas" |
-| `.nd-btn--continue` | Botón naranja continuar/jugar |
-| `.nd-btn--retry` | Botón naranja reintentar |
-| `.nd-btn--map` | Botón translúcido "← Volver" (solo en answers) |
 
 ---
 
 ### 1. 💸 ¿Cuánto cuesta? — ✅ IMPLEMENTADO
-**Archivo:** `src/components/PrecioCosas.tsx` / `.css`  
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` — mismo que minijuego 0.
+**Archivo:** `src/components/PrecioCosas.tsx` / `.css`
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
 
 #### Fases del componente (`GamePhase`):
-1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables (mismo patrón que NecesidadDeseo).
-   - Slide 1: bienvenida al reto, pregunta si saben cuánto cuestan las cosas.
-   - Slide 2: instrucciones del drag & drop y el botón validar.
+1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables.
 2. `'playing'` — Gameplay activo (5 rondas).
 3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
 
 #### Mecánica de juego (drag & drop):
 - 5 rondas con **4 artículos** cada una, dispuestos en grid **2×2**
-- Abajo: **4 etiquetas de precio azules** (banco), mezcladas al azar al inicio de cada ronda
+- Abajo: **4 etiquetas de precio azules** (banco), mezcladas al azar
 - El alumno **arrastra** cada etiqueta hasta el artículo correcto
-  - Arrastrar de tarjeta a tarjeta → intercambio (swap)
-  - Arrastrar de tarjeta al banco → devuelve la etiqueta al banco
-  - El banco también es zona de drop
-- **Botón "¡Validar!"** solo se habilita cuando los 4 artículos tienen etiqueta asignada
-- Al validar: badge **✓ verde** o **✗ rojo** en cada tarjeta → 2.5 s de feedback → siguiente ronda (o resultado)
-- Los fallos **no restan** — solo no suman
+- **Botón "¡Validar!"** solo se habilita cuando los 4 artículos tienen etiqueta
+- Al validar: badge **✓ verde** o **✗ rojo** en cada tarjeta → 2.5 s de feedback → siguiente ronda
 
 #### Puntuación:
 - `PTS_PER_CORRECT = 5` por artículo correcto
 - 5 rondas × 4 artículos = 20 posibles × 5 = **100 pts máximo**
-- **Aprueba con ≥ 70 pts** (equivale a acertar 14 de 20)
-
-#### Rondas (precios realistas, diferenciados dentro de cada ronda para evitar ambigüedad):
-| Ronda | Artículos y precios |
-|-------|---------------------|
-| 1 | Chucherías 0,50 € · Arroz 1,20 € · Cuadernos 3,50 € · Muñeca 22,00 € |
-| 2 | Leche 0,90 € · Verduras 2,00 € · Filete 8,50 € · Coche teledirigido 35,00 € |
-| 3 | Pasta 1,10 € · Fruta 2,80 € · Pescado 7,50 € · Mando de juego 60,00 € |
-| 4 | Chucherías 0,50 € · Chocolate 4,00 € · Muñeca 22,00 € · Bicicleta 90,00 € |
-| 5 | Leche 0,90 € · Donuts 2,20 € · Pescado 7,50 € · Coche teledirigido 35,00 € |
-
-#### Implementación del drag & drop:
-- HTML5 DnD API (`draggable`, `onDragStart`, `onDragOver`, `onDrop`)
-- Info del drag almacenada en `dragInfo = useRef<{ price: string; from: 'bank' | number } | null>`
-  - `from: 'bank'` → viene del banco
-  - `from: number` → viene de la tarjeta con ese índice
-- `dragOverCard: number | null` en estado para el highlight naranja visual al pasar encima
-- **Nota:** HTML5 DnD no funciona en pantallas táctiles — mejora pendiente con pointer events
-
-#### Estado del componente:
-```typescript
-const [gamePhase,      setGamePhase]      = useState<GamePhase>('intro')
-const [introSlide,     setIntroSlide]     = useState<1 | 2>(1)
-const [round,          setRound]          = useState(0)
-const [roundPhase,     setRoundPhase]     = useState<RoundPhase>('placing')
-const [placements,     setPlacements]     = useState<(string | null)[]>([null,null,null,null])
-const [shuffledPrices, setShuffledPrices] = useState<string[]>([])
-const [correctness,    setCorrectness]    = useState<(boolean | null)[]>([null,null,null,null])
-const [dragOverCard,   setDragOverCard]   = useState<number | null>(null)
-const [score,          setScore]          = useState(0)
-const [leaving,        setLeaving]        = useState(false)
-
-const dragInfo = useRef<{ price: string; from: 'bank' | number } | null>(null)
-```
-
-- `placements[i]` = precio colocado en la tarjeta `i` (o `null` si vacía)
-- Labels del banco = `shuffledPrices.filter(p => !placements.includes(p))`
-- El `useEffect([round, gamePhase])` mezcla precios y resetea `placements`, `correctness` y `roundPhase` al inicio de cada ronda
+- **Aprueba con ≥ 70 pts**
 
 #### Clases CSS clave (prefijo `pc-`):
 | Clase | Descripción |
 |-------|-------------|
 | `.pc-screen` | Raíz, mismo patrón que `nd-screen` |
 | `.pc-cards-grid` | Grid 2×2 de tarjetas de artículo |
-| `.pc-card` | Tarjeta individual con imagen, nombre y ranura |
-| `.pc-card--correct` | Flash verde + leve escala al validar |
-| `.pc-card--wrong` | Sacudida roja al validar |
-| `.pc-card--dragover` | Resaltado naranja al pasar etiqueta encima |
-| `.pc-card-slot--empty` | Ranura vacía con pulso naranja animado (`pcSlotPulse`) |
-| `.pc-card-slot--filled` | Ranura con etiqueta colocada |
-| `.pc-card-badge--ok/no` | Badge ✓/✗ en esquina superior derecha de la tarjeta |
-| `.pc-price-chip--bank` | Etiqueta azul en el banco (arrastrable, gradiente `#1565c0`) |
-| `.pc-price-chip--placed` | Etiqueta naranja colocada en tarjeta (gradiente `#e65100`) |
 | `.pc-bank` | Zona de etiquetas sueltas + drop target para devolver |
-| `.pc-btn--validate` | Botón verde "¡Validar!" (gradiente `#2e7d32`) |
+| `.pc-btn--validate` | Botón verde "¡Validar!" |
 
 ---
 
 ### 2. 🐖 Ahorro con Objetivo — ✅ IMPLEMENTADO
-**Archivo:** `src/components/AhorroObjetivo.tsx` / `.css`  
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` — mismo que minijuegos 0 y 1.  
-**Componente auxiliar:** `Calculator.tsx` / `.css` — calculadora funcional posicionada en esquina inferior derecha del área de juego.
+**Archivo:** `src/components/AhorroObjetivo.tsx` / `.css`
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Componente auxiliar:** `Calculator.tsx` / `.css`
 
 #### Fases del componente (`GamePhase`):
 1. `'intro'` — Huchín con bocadillo. **Tres pasos** (`IntroStep = 1 | 2 | 3`):
-   - Paso 1: explica el concepto de ahorro por objetivo. Botón "Continuar →".
-   - Paso 2: explica la mecánica (`ahorro semanal × semanas`). Botón "¡Entendido! ¡Jugar!".
-   - Paso 3 (no es slide, es pantalla aparte): **selección de objetivo** — layout izquierda/derecha como FichaSelect. Huchín izquierda con bocadillo; derecha: grid 2×2 de tarjetas seleccionables + botón "¡Empezar!" (deshabilitado hasta elegir).
+   - Paso 1: explica el concepto de ahorro por objetivo.
+   - Paso 2: explica la mecánica (`ahorro semanal × semanas`).
+   - Paso 3: **selección de objetivo** — layout izquierda/derecha como FichaSelect.
 2. `'playing'` — Gameplay activo (3 rondas por objetivo).
-3. `'result'` — Puntuación + mensaje pass/fail + botón "¡Continuar!" o "¡Intentar de nuevo!".
-
-> **Diferencia clave respecto al patrón estándar:** la intro tiene 3 pasos en lugar de 2 slides; el paso 3 es la selección de objetivo, no un slide más de Huchín.
+3. `'result'` — Puntuación + mensaje pass/fail.
 
 #### Objetivos disponibles (`GOALS`):
 | ID | Nombre | Precio |
@@ -364,177 +270,172 @@ const dragInfo = useRef<{ price: string; from: 'bank' | number } | null>(null)
 | `bicicleta` | Bicicleta | 90 € |
 | `movil` | Móvil | 180 € |
 
-> **Nota:** actualmente todos los objetivos usan `/Articulos/Bicicleta.png` como imagen placeholder. Pendiente asignar imágenes propias a cada objetivo.
-
-#### Rondas por objetivo (`ROUNDS_BY_GOAL`):
-Cada objetivo tiene 3 rondas. El jugador ve el objetivo, el ahorro semanal y el número de semanas; debe responder **Sí / No** a si el total acumulado (`weekly × weeks`) cubre el precio del objetivo. **El resultado no se muestra** — el alumno debe calcularlo con la calculadora.
-
-Los números son deliberadamente no triviales (ningún múltiplo redondo de ×10) y los resultados quedan cerca del precio objetivo para generar duda real.
-
-| Objetivo | R1 | R2 | R3 |
-|----------|----|----|-----|
-| Play5 (500 €) | 35×14=490 ❌ | 45×12=540 ✅ | 28×18=504 ✅ |
-| Viaje (240 €) | 32×7=224 ❌ | 24×11=264 ✅ | 16×15=240 ✅ (justo) |
-| Bicicleta (90 €) | 12×8=96 ✅ | 13×6=78 ❌ | 15×7=105 ✅ |
-| Móvil (180 €) | 22×9=198 ✅ | 18×9=162 ❌ | 14×13=182 ✅ (por poco) |
-
 #### Puntuación:
 - `ROUND_POINTS = [33, 33, 34]` — los tres suman 100
-- Solo se suman puntos si la respuesta es correcta; los fallos no restan
-- **Aprueba con ≥ 50 pts** (no 70 como los demás minijuegos)
-- El umbral 50 se gestiona en `App.tsx`: `const passScore = currentGame === 2 ? 50 : 70`
-
-#### Feedback visual por ronda:
-- `roundPhase: 'answering' | 'feedback'`
-- Al responder: el panel `.ao-challenge` recibe clase `--correct` (verde) o `--wrong` (rojo)
-- Animación: `aoCorrectFlash` (escala) o `aoWrongShake` (sacudida horizontal)
-- Texto de feedback aparece con `aoPopIn`; después de 1 200 ms → siguiente ronda o resultado
-
-#### Calculadora (`Calculator`):
-- Componente independiente (`src/components/Calculator.tsx`)
-- Calculadora de 4 operaciones (+, -, ×, ÷) con tecla `⌫` y `C`
-- Acepta prop `className?: string` para posicionarla desde el padre
-- En `AhorroObjetivo`: posición absoluta en la esquina inferior derecha (`.ao-calculator`)
-- En móvil (≤ 960 px): se centra en la parte inferior y el área de juego tiene `overflow-y: auto`
-- CSS prefix: `calc-`
-
-#### Estado del componente:
-```typescript
-const [gamePhase,          setGamePhase]          = useState<GamePhase>('intro')
-const [introStep,          setIntroStep]          = useState<IntroStep>(1)
-const [selectedGoal,       setSelectedGoal]       = useState<Goal | null>(null)
-const [round,              setRound]              = useState(0)
-const [roundPhase,         setRoundPhase]         = useState<RoundPhase>('answering')
-const [score,              setScore]              = useState(0)
-const [lastAnswerCorrect,  setLastAnswerCorrect]  = useState<boolean | null>(null)
-const [leaving,            setLeaving]            = useState(false)
-```
-
-#### Lógica de `handleAnswer`:
-- Calcula `correctAnswer = savedAmount >= selectedGoal.price` (booleano)
-- Compara con la respuesta del usuario (Sí = `true`, No = `false`)
-- `setRoundPhase('feedback')` → `setTimeout(1200)` → batch `setRoundPhase('answering') + setRound(next)` (mismo patrón de React 18 batch que los otros minijuegos)
-- Al llegar a la última ronda: `setGamePhase('result')`
-
-#### Pantalla de resultado:
-- Si **aprueba** (≥ 50 pts): bocadillo verde + puntuación en verde claro (`#b9f6ca`) + botón "¡Continuar!"
-- Si **suspende**: bocadillo rojo + puntuación en naranja claro (`#ffccbc`) + botón "¡Intentar de nuevo!"
-- Sin botón "Volver al mapa" ni "Ver respuestas"
+- **Aprueba con ≥ 50 pts** (umbral especial gestionado en `App.tsx`)
 
 #### Clases CSS clave (prefijo `ao-`):
 | Clase | Descripción |
 |-------|-------------|
-| `.ao-screen` | Raíz, flex column, 100vh |
-| `.ao-bg` | Fondo absoluto z-index 0 |
-| `.ao-overlay` | Overlay negro 0.65 permanente z-index 1 |
-| `.ao-intro` | Slides 1 y 2, absoluto z-index 10 |
-| `.ao-intro-bubble` | Bocadillo con `key={introStep}` para reanimar `aoPopIn` |
-| `.ao-goal-select` | Pantalla de selección de objetivo (paso 3), absoluta z-index 10 |
-| `.ao-goal-card` | Tarjeta seleccionable de objetivo |
-| `.ao-goal-card--selected` | Borde dorado + glow al seleccionar |
-| `.ao-header` | Header gameplay z-index 2 |
-| `.ao-play-area` | Área de juego, flex, position relative |
+| `.ao-screen` | Raíz |
+| `.ao-goal-select` | Pantalla de selección de objetivo (paso 3) |
 | `.ao-challenge` | Panel blanco central con el reto |
-| `.ao-challenge--correct` | Flash verde + `aoCorrectFlash` |
-| `.ao-challenge--wrong` | Sacudida roja + `aoWrongShake` |
-| `.ao-answer-btn--yes` | Botón verde "Sí" |
-| `.ao-answer-btn--no` | Botón rojo "No" |
-| `.ao-feedback` | Texto feedback correcto/incorrecto |
 | `.ao-calculator` | Calculadora anclada esquina inferior derecha |
-| `.ao-result` | Resultado absoluto z-index 10 |
-| `.ao-score-badge` | Contador naranja/dorado en el header |
 
 ---
 
 ### 3. 🏷️ Comparar Ofertas — ✅ IMPLEMENTADO
-**Archivo:** `src/components/CompararOfertas.tsx` / `.css`  
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` — mismo que minijuegos 0, 1 y 2.  
-**Componente auxiliar:** `Calculator.tsx` — calculadora en esquina inferior derecha, misma integración que Minijuego 2.
+**Archivo:** `src/components/CompararOfertas.tsx` / `.css`
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Componente auxiliar:** `Calculator.tsx`
 
 #### Fases del componente (`GamePhase`):
-1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables (patrón estándar).
-   - Slide 1: bienvenida, explica el concepto de comparar ofertas.
-   - Slide 2: instrucciones (cantidad + precio → mejor precio por unidad/kilo). Botón "¡Entendido! ¡Jugar!".
+1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables.
 2. `'playing'` — Gameplay activo (6 rondas).
-3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
+3. `'result'` — Puntuación + mensaje pass/fail.
 
 #### Mecánica de juego:
 - 6 rondas: 2 fáciles, 2 medias, 2 difíciles
 - En cada ronda: mismo producto en **2 opciones** (fácil/medio) o **3 opciones** (difícil)
 - El alumno elige la opción con **mejor precio por unidad o por kilo**
-- Tras elegir: feedback 1 800 ms mostrando el precio por unidad de **todas** las opciones para aprender por qué una es mejor
-- Calculadora visible en todo momento para ayudar
-
-#### Rondas (`ROUNDS`):
-| # | Dificultad | Producto | Ganadora | Lección pedagógica |
-|---|-----------|----------|----------|--------------------|
-| 1 | Fácil | Leche | 3 bricks (2,40 €) → **0,80 €/ud** | El pack más grande sale mejor |
-| 2 | Fácil | Refresco | 2 botellas (1,60 €) → **0,80 €/botella** | El pack más pequeño/barato puede salir mejor |
-| 3 | Medio | Arroz | 500 g (0,65 €) → **1,30 €/kg** | El envase más barato puede costar menos por kilo |
-| 4 | Medio | Pasta | 500 g (1,10 €) → **2,20 €/kg** | El pack más grande sale mejor por kilo |
-| 5 | Difícil | Fruta | 750 g (1,80 €) → **2,40 €/kg** | Ni el más barato ni el más caro: hay que calcular |
-| 6 | Difícil | Chocolate | Promo 3×2 (2,40 €) → **0,80 €/tableta** | Promoción 3×2: pagas 2, llevas 3 |
-
-> **Clave pedagógica:** no siempre la opción más cara o la más grande es la mejor. Rondas 2 y 3 invierten la expectativa; ronda 5 el ganador es el precio intermedio.
+- Tras elegir: feedback 1 800 ms mostrando el precio por unidad de todas las opciones
 
 #### Puntuación:
-- Fáciles: 15 pts × 2 = 30 pts
-- Medias: 20 pts × 2 = 40 pts
-- Difíciles: 15 pts × 2 = 30 pts
-- Total máximo: **100 pts**
-- **Aprueba con ≥ 70 pts** — permisivo con las difíciles: aprobar fáciles + medias (70 pts) ya es suficiente para pasar aunque fallen las dos difíciles
+- Fáciles: 15 pts × 2 = 30 pts | Medias: 20 pts × 2 = 40 pts | Difíciles: 15 pts × 2 = 30 pts
+- Total máximo: **100 pts** | **Aprueba con ≥ 70 pts**
 
-#### Feedback visual por ronda:
-- `roundPhase: 'choosing' | 'feedback'`
-- Al seleccionar: `selectedId` se fija, `setRoundPhase('feedback')`
-- Tarjeta correcta → clase `co-option-card--correct` (verde + `coCorrectFlash`) + badge ✓
-- Tarjeta errónea seleccionada → clase `co-option-card--wrong` (rojo + `coWrongShake`) + badge ✗
-- Resto de tarjetas → clase `co-option-card--dim` (opacidad 0.4)
-- Todas las tarjetas muestran su `perUnitLabel` durante el feedback
-- Después de 1 800 ms → batch `setRoundPhase('choosing') + setRound(next)` (mismo patrón React 18)
+#### Clases CSS clave (prefijo `co-`):
+| Clase | Descripción |
+|-------|-------------|
+| `.co-screen` | Raíz |
+| `.co-options` | Flex row de tarjetas de opción |
+| `.co-option-card--correct/wrong/dim` | Estados de feedback |
+| `.co-calculator` | Calculadora anclada esquina inferior derecha |
+
+---
+
+### 4. 💰 El Cajero — ✅ IMPLEMENTADO
+**Archivo:** `src/components/ElCambio.tsx` / `.css`
+**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Componente auxiliar:** `Calculator.tsx`
+
+#### Fases del componente (`GamePhase`):
+1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables:
+   - Slide 1: bienvenida, explica el rol de cajero.
+   - Slide 2: instrucciones de la caja registradora y la calculadora.
+2. `'playing'` — Gameplay activo (5 rondas). Tiene **dos sub-pantallas** (`SubScreen`):
+   - `'round'` — pantalla principal de la ronda
+   - `'register'` — caja registradora para seleccionar monedas
+3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
+
+#### Mecánica de juego:
+El alumno toma el rol de **cajero**. En cada ronda ve un producto con su precio y la moneda/billete con la que paga el cliente. Debe calcular el cambio con la calculadora y luego abrir la caja registradora para seleccionar las monedas y billetes exactos.
+
+**Flujo dentro de una ronda:**
+1. **Pantalla ronda** (`subScreen === 'round'`):
+   - Muestra tarjeta del producto (imagen, nombre, precio en tag naranja)
+   - Muestra tarjeta de pago ("El cliente paga" + imagen moneda/billete + cantidad)
+   - Calculadora disponible (esquina inferior derecha)
+   - Botón azul **"Abrir caja registradora"** (con imagen `CajaRegistradora.png`) — cambia a "Modificar selección" si ya hay monedas elegidas
+   - Área de **vista previa de monedas seleccionadas**: muestra imagen + ×N de cada denominación elegida, o texto de ayuda si no hay ninguna
+   - Footer con **total seleccionado** y botón verde **"✓ Validar"**
+   - Tras validar: feedback en el footer (verde/rojo, 2,2 s) y avance a la siguiente ronda o resultado
+2. **Pantalla caja registradora** (`subScreen === 'register'`):
+   - Topbar: botón "← Volver" + icono + título "Caja Registradora"
+   - Cuadrícula **6×2** con las 11 denominaciones (monedas fila 1, billetes fila 2), llenando todo el espacio disponible
+   - Cada tarjeta: imagen uniforme (misma caja `clamp(60px, 9vw, 110px)²`), botones **−** (rojo) y **+** (verde), contador numérico (dorado cuando > 0)
+   - Tarjetas con count > 0 resaltan con borde naranja + glow
+   - **Tarjeta recordatorio** (position absolute, esquina inferior derecha, no clickable): muestra imagen del producto + precio + separador + imagen del pago + cantidad
+   - Footer: total seleccionado + "← Vuelve para validar"
+   - El alumno puede ir y volver entre las dos pantallas sin perder la selección
+
+#### Denominaciones disponibles (`DENOMINATIONS`):
+| Valor | Imagen |
+|-------|--------|
+| 1 c | `/Dinero/1centimo.png` |
+| 2 c | `/Dinero/2centimos.png` |
+| 5 c | `/Dinero/5centimos.png` |
+| 10 c | `/Dinero/10centimos.png` |
+| 20 c | `/Dinero/20centimos.png` |
+| 50 c | `/Dinero/50centimos.png` |
+| 1 € | `/Dinero/1euro.png` |
+| 2 € | `/Dinero/2%20euros.png` (ojo: espacio en filename) |
+| 5 € | `/Dinero/5euros.png` |
+| 10 € | `/Dinero/10euros.png` |
+| 20 € | `/Dinero/20euros.png` |
+
+#### Rondas (`ROUNDS`) — precios en céntimos enteros para evitar errores float:
+| Ronda | Producto | Precio | Pago | Cambio | Puntos |
+|-------|----------|--------|------|--------|--------|
+| 1 | Chucherías | 0,50 € | 1 € | **0,50 €** | 20 |
+| 2 | Arroz | 1,20 € | 2 € | **0,80 €** | 20 |
+| 3 | Cuadernos | 3,50 € | 5 € | **1,50 €** | 20 |
+| 4 | Chocolate | 4,00 € | 10 € | **6,00 €** | 20 |
+| 5 | Muñeca | 12,00 € | 20 € | **8,00 €** | 20 |
+
+La validación compara `totalSelected === changeCents` (enteros en céntimos). Cualquier combinación de monedas que sume exactamente el cambio es válida.
+
+#### Puntuación:
+- 5 rondas × 20 pts = **100 pts máximo**
+- **Aprueba con ≥ 70 pts**
+- Los fallos no restan
 
 #### Estado del componente:
 ```typescript
 const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
 const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
 const [round,       setRound]       = useState(0)
-const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('choosing')
-const [selectedId,  setSelectedId]  = useState<string | null>(null)
+const [subScreen,   setSubScreen]   = useState<SubScreen>('round')
+const [counts,      setCounts]      = useState<number[]>(DENOMINATIONS.map(() => 0))
+const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('waiting')
+const [lastCorrect, setLastCorrect] = useState<boolean | null>(null)
 const [score,       setScore]       = useState(0)
 const [leaving,     setLeaving]     = useState(false)
+
+// Derivados:
+const changeCents   = currentRound.paymentCents - currentRound.priceCents
+const totalSelected = counts.reduce((sum, count, i) => sum + count * DENOMINATIONS[i].valueCents, 0)
 ```
 
-#### Clases CSS clave (prefijo `co-`):
+#### Clases CSS clave (prefijo `ch-`):
 | Clase | Descripción |
 |-------|-------------|
-| `.co-screen` | Raíz, flex column, 100vh |
-| `.co-bg` / `.co-overlay` | Fondo + overlay negro 0.65 |
-| `.co-intro` | Intro absoluta z-index 10 |
-| `.co-intro-bubble` | Bocadillo con `key={introSlide}` para reanimar `coPopIn` |
-| `.co-header` | Header gameplay z-index 2 |
-| `.co-score-badge` | Contador naranja/dorado |
-| `.co-play-area` | Área de juego, `padding-right: 15rem` para la calculadora |
-| `.co-challenge` | Panel blanco central con `key={round}` para reanimar |
-| `.co-challenge-top` | Fila imagen producto + badge dificultad + nombre |
-| `.co-difficulty--easy/medium/hard` | Pill coloreado: verde/naranja/rojo |
-| `.co-options` | Flex row de tarjetas; `padding-top: 14px` para el badge de promo |
-| `.co-options--2` / `.co-options--3` | 2 o 3 tarjetas en fila |
-| `.co-option-card` | Tarjeta seleccionable (botón) |
-| `.co-option-card--correct` | Flash verde + `coCorrectFlash` |
-| `.co-option-card--wrong` | Sacudida roja + `coWrongShake` |
-| `.co-option-card--dim` | Opacidad 0.4 para opciones no elegidas en feedback |
-| `.co-promo-badge` | Pill naranja "★ Promo" absoluto en top de tarjeta |
-| `.co-card-badge--ok/no` | Círculo ✓/✗ en esquina superior derecha de tarjeta |
-| `.co-per-unit` | Precio por unidad/kilo (visible solo en feedback) |
-| `.co-per-unit--best` | Verde para la opción ganadora |
-| `.co-feedback` | Texto feedback correcto/incorrecto |
-| `.co-calculator` | Calculadora anclada esquina inferior derecha |
-| `.co-result` | Resultado absoluto z-index 10 |
-
-### 4. 💰 El Cambio — 🔲 PENDIENTE
-- Modelo: producto + precio, billete de pago, cálculo de cambio
-- Vista comprador: acepta o reclama el cambio
-- Vista cajero: selecciona monedas/billetes para dar cambio
+| `.ch-screen` | Raíz, flex column, 100vh |
+| `.ch-bg` / `.ch-overlay` | Fondo + overlay negro 0.65 |
+| `.ch-intro` | Intro absoluta z-index 10 |
+| `.ch-header` | Header gameplay z-index 2 |
+| `.ch-score-badge` | Contador naranja/dorado |
+| `.ch-play-area` | Área de juego ronda, `padding-right: 15rem` para calculadora |
+| `.ch-challenge` | Panel blanco central con `key={round}` |
+| `.ch-challenge-cards` | Flex row: tarjeta producto + flecha + tarjeta pago |
+| `.ch-info-card` | Tarjeta blanca (producto o pago) |
+| `.ch-info-card--payment` | Variante azul claro para el pago |
+| `.ch-price-tag` | Etiqueta naranja con el precio del producto |
+| `.ch-payment-img` | Imagen de la moneda/billete de pago |
+| `.ch-payment-img--bill` | Variante landscape para billetes |
+| `.ch-btn--register` | Botón azul con imagen CajaRegistradora.png + texto |
+| `.ch-btn-register-img` | Imagen dentro del botón de la caja |
+| `.ch-selection-area` | Contenedor del botón caja + preview de selección |
+| `.ch-selected-coins` | Flex wrap con monedas elegidas (borde naranja discontinuo) |
+| `.ch-selected-item` | Tarjeta mini: imagen + ×N |
+| `.ch-selection-hint` | Texto de ayuda cuando no hay selección |
+| `.ch-round-footer` | Footer del panel: total + validar o feedback |
+| `.ch-round-footer--pass/fail` | Estados verde/rojo tras validar |
+| `.ch-feedback-msg--pass/fail` | Texto feedback correcto/incorrecto (colores oscuros — fondo blanco) |
+| `.ch-calculator` | Calculadora anclada esquina inferior derecha del play-area |
+| `.ch-register-wrap` | Contenedor pantalla caja, flex column, fondo verde oscuro |
+| `.ch-register-topbar` | Barra superior de la caja |
+| `.ch-register-title-row` | Icono + título "Caja Registradora" |
+| `.ch-back-btn` | Botón "← Volver" translúcido |
+| `.ch-coins-grid` | Grid 6×2 llenando todo el espacio disponible |
+| `.ch-coin-card` | Tarjeta de denominación |
+| `.ch-coin-card--active` | Borde naranja + glow cuando count > 0 |
+| `.ch-coin-img` | Imagen uniforme `clamp(60px, 9vw, 110px)²` para todas las denominaciones |
+| `.ch-coin-controls` | Fila −, contador, + |
+| `.ch-coin-count--active` | Contador dorado con animación chPopIn |
+| `.ch-register-reminder` | Tarjeta recordatorio flotante `position: absolute`, esquina inferior derecha, `pointer-events: none` |
+| `.ch-register-footer` | Footer de la caja: total + hint "← Vuelve para validar" |
+| `.ch-result` | Resultado absoluto z-index 10 |
 
 ---
 
@@ -542,7 +443,7 @@ const [leaving,     setLeaving]     = useState(false)
 
 - **Fondo intro/selección:** `Paisaje.png` con `background-size: cover; background-position: bottom center`
 - **Fondo mapa:** `Mapa.png` con `background-size: cover; background-position: center center`
-- **Fondo minijuegos (0, 1 y 2):** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` siempre visible
+- **Fondo minijuegos (todos):** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` siempre visible
 - **Paleta:** naranja/amarillo para botones (`#ff6f00` → `#ffa000`), sombra `#bf360c`; dorado `#ffcc02` para bordes de bocadillos
 - **Bocadillos:** fondo blanco, borde `#ffcc02`, triángulo CSS, sombra
 - **Botones principales:** `border-radius: 60px`, gradiente naranja, sombra 3D, hover = `translateY(-4px)`
@@ -572,7 +473,6 @@ const [leaving,     setLeaving]     = useState(false)
 `App.tsx` incluye un bloque `DEBUG` en el nivel de módulo (fuera del componente) que permite saltar directamente a cualquier estado de la app sin pasar por el flujo normal.
 
 ```typescript
-// Líneas ~19-52 de App.tsx
 const DEBUG = {
   enabled: false,          // ← cambiar a true para activar
 
@@ -587,11 +487,7 @@ const DEBUG = {
   },
 }
 
-const D = DEBUG.enabled ? DEBUG : null   // null cuando está desactivado
-
-// Los useState reciben los valores de DEBUG o los por defecto con ??
-const [screen, setScreen] = useState<Screen>(D?.screen ?? 'home')
-// ... etc.
+const D = DEBUG.enabled ? DEBUG : null
 ```
 
 ### Presets de uso habitual:
@@ -599,16 +495,14 @@ const [screen, setScreen] = useState<Screen>(D?.screen ?? 'home')
 | Qué testear | `screen` | `currentGame` | `completedGames` |
 |---|---|---|---|
 | Mapa vacío | `'map'` | `null` | `[]` |
-| Mapa con 3 completos | `'map'` | `null` | `[0, 1, 2]` |
+| Mapa con 4 completos | `'map'` | `null` | `[0, 1, 2, 3]` |
 | Minijuego 0 directo | `'minigame'` | `0` | `[]` |
 | Minijuego 1 directo | `'minigame'` | `1` | `[]` |
 | Minijuego 2 directo | `'minigame'` | `2` | `[]` |
 | Minijuego 3 directo | `'minigame'` | `3` | `[]` |
+| Minijuego 4 directo | `'minigame'` | `4` | `[]` |
 
-### Notas técnicas:
-- El objeto `DEBUG` se evalúa **una sola vez** al cargar el módulo — sin coste en renders.
-- Cuando `enabled: false`, `D` es `null` y los `useState` usan sus valores por defecto normales.
-- Al entrar en `screen: 'minigame'`, `player` ya viene relleno desde `DEBUG.player`, por lo que la guardia `player && currentGame !== null` de `App.tsx` no falla.
+> **⚠️ Importante:** acordarse de poner `enabled: false` antes de hacer build/deploy.
 
 ---
 
@@ -627,16 +521,18 @@ const [screen, setScreen] = useState<Screen>(D?.screen ?? 'home')
 - Las transiciones entre pantallas duran 550ms con clase CSS `--leaving`
 - Al implementar un minijuego real, añade un `if (currentGame === N)` dentro del bloque `if (screen === 'minigame')` en `App.tsx`; el componente recibe `onComplete(score: number)` y `onBack()`
 
-### Patrón estándar de minijuego (ver NecesidadDeseo y PrecioCosas como referencia):
+### Patrón estándar de minijuego (ver CompararOfertas como referencia canónica):
 - Fases: `'intro' → 'playing' → 'result'`
 - Intro: 2 slides con Huchín, bocadillo con `key={introSlide}` para reanimar
 - Fondo: `FondoMinijuego1.png` + `<div className="XX-overlay" />` (z-index 1) siempre visible
 - Resultado: `position: absolute; inset: 0; z-index: 10` apilado sobre el gameplay
 - Función `exit(withScore)`: `setLeaving(true)` → 550ms → `onComplete(score)` o `onBack()`
-- Prefijo CSS único por componente (`nd-` para NecesidadDeseo, `pc-` para PrecioCosas, etc.)
+- Prefijo CSS único por componente (`nd-`, `pc-`, `ao-`, `co-`, `ch-`…)
 
 ### Patrones técnicos importantes:
 - **Avance entre rondas con efecto de roundPhase:** hacer batch de `setRoundPhase('active') + setRound(next)` en el mismo `setTimeout` para que React 18 los batchee y el efecto no se re-ejecute con el estado antiguo de roundPhase en el nuevo round
 - **Drag & drop:** almacenar info del drag en `useRef` (no en estado) para evitar stale closures en los handlers de `onDrop`
 - **Timer con RAF:** `requestAnimationFrame` para suavidad, cancelar en el cleanup del `useEffect`
 - **Pools sin repetición:** `useRef<Item[]>` inicializado al empezar, repuesto cuando se agota
+- **Aritmética monetaria:** operar siempre en **céntimos enteros** para evitar errores de punto flotante. Formatear a euros solo en UI con `(cents / 100).toFixed(2).replace('.', ',') + ' €'`
+- **Nombres de archivo con espacios:** codificar como `%20` en los src de imágenes (ej: `/Dinero/2%20euros.png`)

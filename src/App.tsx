@@ -8,6 +8,7 @@ import NecesidadDeseo from './components/NecesidadDeseo'
 import PrecioCosas from './components/PrecioCosas'
 import AhorroObjetivo from './components/AhorroObjetivo'
 import CompararOfertas from './components/CompararOfertas'
+import ElCambio from './components/ElCambio'
 
 type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
@@ -38,12 +39,12 @@ interface PlayerData {
 //     screen: 'minigame', currentGame: 2
 // =============================================================================
 const DEBUG = {
-  enabled: false,
+  enabled: true,
 
   screen:         'minigame' as Screen,
-  currentGame:    3          as number | null,
-  completedGames: [0, 1, 2]  as number[],
-  points:         200,
+  currentGame:    4          as number | null,
+  completedGames: [0, 1, 2, 3]  as number[],
+  points:         400,
   player: {
     name:      'Tester',
     character: 'boy'   as const,
@@ -138,50 +139,9 @@ function App() {
       return <CompararOfertas onComplete={handleComplete} onBack={handleBack} />
     }
 
-    // Placeholder for minigames 1–4 (not yet implemented)
-    const gameNames = ['', '¿Cuánto cuesta?', 'Ahorro con Objetivo', 'Comparar Ofertas', 'El Cambio']
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(160deg, #fffde7 0%, #ffe082 100%)',
-        gap: '1.5rem',
-        fontFamily: 'system-ui, sans-serif',
-        padding: '2rem',
-      }}>
-        <h2 style={{ color: '#e65100', fontSize: '2.2rem', margin: 0, textAlign: 'center' }}>
-          {gameNames[currentGame]}
-        </h2>
-        <p style={{ color: '#555', fontSize: '1.2rem', textAlign: 'center' }}>
-          Minijuego en construcción...
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button
-            onClick={() => handleComplete(100)}
-            style={{
-              padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
-              border: 'none', background: 'linear-gradient(135deg, #2e7d32, #66bb6a)',
-              color: '#fff', cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #1b5e20',
-            }}
-          >
-            Completar (prueba)
-          </button>
-          <button
-            onClick={handleBack}
-            style={{
-              padding: '0.65em 2em', fontSize: '1.2rem', borderRadius: '60px',
-              border: 'none', background: '#ff6f00', color: '#fff',
-              cursor: 'pointer', fontWeight: 800, boxShadow: '0 5px 0 #bf360c',
-            }}
-          >
-            Volver al mapa
-          </button>
-        </div>
-      </div>
-    )
+    if (currentGame === 4) {
+      return <ElCambio onComplete={handleComplete} onBack={handleBack} />
+    }
   }
 
   return null
