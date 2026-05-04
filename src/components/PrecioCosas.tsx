@@ -209,13 +209,6 @@ export default function PrecioCosas({ onComplete, onBack }: Props) {
               {score} <span className="pc-score-label">pts</span>
             </div>
             <div className="pc-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
-            <button
-              className="pc-exit-btn"
-              onClick={() => exit(false)}
-              aria-label="Salir"
-            >
-              ✕
-            </button>
           </header>
 
           <div className="pc-play-area">

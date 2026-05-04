@@ -185,28 +185,6 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-.co-exit-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  width: 2.3rem;
-  height: 2.3rem;
-  color: #fff;
-  font-size: 1.25rem;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, transform 0.15s ease;
-  flex-shrink: 0;
-}
-
-.co-exit-btn:hover {
-  background: rgba(255, 255, 255, 0.28);
-  transform: scale(1.08);
-}
-
 /* ── PLAY AREA ──────────────────────────────────────────────────── */
 .co-play-area {
   position: relative;

@@ -8,7 +8,6 @@ interface Props {
 }
 
 type GamePhase = 'intro' | 'playing' | 'result'
-type SubScreen = 'round' | 'register'
 type RoundPhase = 'waiting' | 'feedback'
 
 interface Denomination {
@@ -101,7 +100,6 @@ export default function ElCambio({ onComplete, onBack }: Props) {
   const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
   const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
   const [round,       setRound]       = useState(0)
-  const [subScreen,   setSubScreen]   = useState<SubScreen>('round')
   const [counts,      setCounts]      = useState<number[]>(DENOMINATIONS.map(() => 0))
   const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('waiting')
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null)
@@ -140,7 +138,6 @@ export default function ElCambio({ onComplete, onBack }: Props) {
         setCounts(DENOMINATIONS.map(() => 0))
         setLastCorrect(null)
         setRoundPhase('waiting')
-        setSubScreen('round')
         setRound(nextRound)
       }
     }, 2200)
@@ -198,12 +195,15 @@ export default function ElCambio({ onComplete, onBack }: Props) {
               {score} <span className="ch-score-label">pts</span>
             </div>
             <div className="ch-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
-            <button className="ch-exit-btn" onClick={() => exit(false)} aria-label="Salir">✕</button>
           </header>
 
           {/* ── Pantalla ronda ── */}
-          {subScreen === 'round' && (
-            <main className="ch-play-area">
+          <main className="ch-play-area">
+            <aside className="ch-tool-panel ch-tool-panel--calculator" aria-label="Calculadora de ayuda">
+              <Calculator className="ch-calculator" />
+            </aside>
+
+            <div className="ch-main-panel">
               <section className="ch-challenge" key={round}>
                 <h2 className="ch-challenge-title">¿Cuánto cambio debes dar?</h2>
 
@@ -233,16 +233,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                 </div>
 
                 {/* ── Selección de monedas ── */}
-                <div className="ch-selection-area">
-                  <button
-                    className="ch-btn ch-btn--register"
-                    onClick={() => setSubScreen('register')}
-                    disabled={roundPhase === 'feedback'}
-                  >
-                    <img src="/Articulos/CajaRegistradora.png" alt="" className="ch-btn-register-img" />
-                    {counts.some((c) => c > 0) ? 'Modificar selección' : 'Abrir caja registradora'}
-                  </button>
-
+                <div className="ch-selection-area" aria-live="polite">
                   {counts.some((c) => c > 0) ? (
                     <div className="ch-selected-coins">
                       {DENOMINATIONS.map((den, idx) =>
@@ -251,7 +242,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                             <img
                               src={den.img}
                               alt={den.label}
-                              className={`ch-selected-item-img${den.isBill ? ' ch-selected-item-img--bill' : ''}`}
+                              className={`ch-selected-item-img${den.isBill ? ' ch-selected-item-img--bill' : ''}${den.valueCents === 100 ? ' ch-selected-item-img--one-euro' : ''}`}
                             />
                             <span className="ch-selected-item-count">×{counts[idx]}</span>
                           </div>
@@ -259,9 +250,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                       )}
                     </div>
                   ) : (
-                    <p className="ch-selection-hint">
-                      Abre la caja para elegir las monedas y billetes del cambio
-                    </p>
+                    <p className="ch-selection-hint">Elige el cambio en la caja registradora.</p>
                   )}
                 </div>
 
@@ -270,11 +259,10 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                   {roundPhase === 'waiting' ? (
                     <>
                       <div className="ch-total">
-                        <span className="ch-total-label">Total:</span>
                         <strong className="ch-total-value">{formatEuros(totalSelected)}</strong>
                       </div>
                       <button className="ch-btn ch-btn--validate" onClick={handleValidate}>
-                        ✓ Validar
+                        Validar
                       </button>
                     </>
                   ) : (
@@ -286,30 +274,15 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                   )}
                 </div>
               </section>
+            </div>
 
-              <Calculator className="ch-calculator" />
-            </main>
-          )}
-
-          {/* ── Pantalla caja registradora ── */}
-          {subScreen === 'register' && (
-            <div className="ch-register-wrap">
-
+            <aside className="ch-register-wrap" aria-label="Caja registradora">
               <div className="ch-register-topbar">
-                <button className="ch-back-btn" onClick={() => setSubScreen('round')}>
-                  ← Volver
-                </button>
-
                 <div className="ch-register-title-row">
-                  <img
-                    src="/Articulos/CajaRegistradora.png"
-                    alt="Caja registradora"
-                    className="ch-register-icon"
-                  />
-                  <span className="ch-register-title">Caja Registradora</span>
+                  <img src="/Articulos/CajaRegistradora.png" alt="" className="ch-register-icon" />
+                  <span className="ch-register-title">Caja</span>
                 </div>
-
-                <div className="ch-register-topbar-spacer" />
+                <div className="ch-register-total">{formatEuros(totalSelected)}</div>
               </div>
 
               <div className="ch-coins-grid">
@@ -321,7 +294,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                     <img
                       src={den.img}
                       alt={den.label}
-                      className="ch-coin-img"
+                      className={`ch-coin-img${den.valueCents === 100 ? ' ch-coin-img--one-euro' : ''}`}
                     />
                     <div className="ch-coin-controls">
                       <button
@@ -347,32 +320,13 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                 ))}
               </div>
 
-              {/* Tarjeta recordatorio — esquina inferior izquierda */}
-              <div className="ch-register-reminder" aria-hidden="true">
-                <img
-                  src={currentRound.productImg}
-                  alt={currentRound.productName}
-                  className="ch-reminder-product-img"
-                />
-                <span className="ch-reminder-price">{formatEuros(currentRound.priceCents)}</span>
-                <div className="ch-reminder-divider" />
-                <img
-                  src={currentRound.paymentImg}
-                  alt={currentRound.paymentLabel}
-                  className="ch-reminder-payment-img"
-                />
-                <span className="ch-reminder-payment-label">{currentRound.paymentLabel}</span>
-              </div>
-
               <div className="ch-register-footer">
                 <div className="ch-total">
-                  <span className="ch-total-label">Total seleccionado:</span>
                   <strong className="ch-total-value">{formatEuros(totalSelected)}</strong>
                 </div>
-                <span className="ch-register-footer-hint">← Vuelve para validar</span>
               </div>
-            </div>
-          )}
+            </aside>
+          </main>
         </>
       )}
 

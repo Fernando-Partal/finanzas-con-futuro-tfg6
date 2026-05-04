@@ -287,13 +287,6 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
             <div className="nd-round-label">
               Ronda {round + 1} / {TOTAL_ROUNDS}
             </div>
-            <button
-              className="nd-exit-btn"
-              onClick={() => exit(false)}
-              aria-label="Salir"
-            >
-              ✕
-            </button>
           </header>
 
           <div className="nd-play-area">

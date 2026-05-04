@@ -208,7 +208,6 @@ export default function CompararOfertas({ onComplete, onBack }: Props) {
               {score} <span className="co-score-label">pts</span>
             </div>
             <div className="co-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
-            <button className="co-exit-btn" onClick={() => exit(false)} aria-label="Salir">✕</button>
           </header>
 
           <main className="co-play-area">

@@ -323,31 +323,28 @@ const [points, setPoints]            // number — puntuación acumulada
 1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables:
    - Slide 1: bienvenida, explica el rol de cajero.
    - Slide 2: instrucciones de la caja registradora y la calculadora.
-2. `'playing'` — Gameplay activo (5 rondas). Tiene **dos sub-pantallas** (`SubScreen`):
-   - `'round'` — pantalla principal de la ronda
-   - `'register'` — caja registradora para seleccionar monedas
+2. `'playing'` — Gameplay activo (5 rondas) en **una única pantalla integrada**.
+   - Columna izquierda: calculadora de ayuda (`Calculator`).
+   - Panel central: producto, pago del cliente, vista previa de monedas seleccionadas, total y validación.
+   - Panel derecho: caja registradora integrada con monedas/billetes.
 3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
 
 #### Mecánica de juego:
-El alumno toma el rol de **cajero**. En cada ronda ve un producto con su precio y la moneda/billete con la que paga el cliente. Debe calcular el cambio con la calculadora y luego abrir la caja registradora para seleccionar las monedas y billetes exactos.
+El alumno toma el rol de **cajero**. En cada ronda ve un producto con su precio y la moneda/billete con la que paga el cliente. Debe calcular el cambio con la calculadora y seleccionar directamente en la caja registradora las monedas y billetes exactos.
 
-**Flujo dentro de una ronda:**
-1. **Pantalla ronda** (`subScreen === 'round'`):
-   - Muestra tarjeta del producto (imagen, nombre, precio en tag naranja)
-   - Muestra tarjeta de pago ("El cliente paga" + imagen moneda/billete + cantidad)
-   - Calculadora disponible (esquina inferior derecha)
-   - Botón azul **"Abrir caja registradora"** (con imagen `CajaRegistradora.png`) — cambia a "Modificar selección" si ya hay monedas elegidas
-   - Área de **vista previa de monedas seleccionadas**: muestra imagen + ×N de cada denominación elegida, o texto de ayuda si no hay ninguna
-   - Footer con **total seleccionado** y botón verde **"✓ Validar"**
-   - Tras validar: feedback en el footer (verde/rojo, 2,2 s) y avance a la siguiente ronda o resultado
-2. **Pantalla caja registradora** (`subScreen === 'register'`):
-   - Topbar: botón "← Volver" + icono + título "Caja Registradora"
-   - Cuadrícula **6×2** con las 11 denominaciones (monedas fila 1, billetes fila 2), llenando todo el espacio disponible
-   - Cada tarjeta: imagen uniforme (misma caja `clamp(60px, 9vw, 110px)²`), botones **−** (rojo) y **+** (verde), contador numérico (dorado cuando > 0)
-   - Tarjetas con count > 0 resaltan con borde naranja + glow
-   - **Tarjeta recordatorio** (position absolute, esquina inferior derecha, no clickable): muestra imagen del producto + precio + separador + imagen del pago + cantidad
-   - Footer: total seleccionado + "← Vuelve para validar"
-   - El alumno puede ir y volver entre las dos pantallas sin perder la selección
+**Flujo dentro de una ronda (pantalla integrada):**
+1. La **calculadora** queda siempre visible en el panel izquierdo para operaciones de apoyo.
+2. El **panel central** muestra:
+   - Tarjeta del producto (imagen, nombre, precio en tag naranja).
+   - Tarjeta de pago ("El cliente paga" + imagen moneda/billete + cantidad).
+   - Área de **vista previa de monedas seleccionadas**: muestra imagen + ×N de cada denominación elegida, o texto de ayuda si no hay ninguna.
+   - Footer con **total seleccionado** y botón verde **"Validar"**.
+   - Tras validar: feedback en el footer (verde/rojo, 2,2 s) y avance a la siguiente ronda o resultado.
+3. El **panel derecho** integra la caja registradora:
+   - Topbar con icono de `CajaRegistradora.png`, título corto "Caja" y total seleccionado.
+   - Cuadrícula compacta de las 11 denominaciones.
+   - Cada tarjeta: imagen de moneda/billete, botones **−** (rojo) y **+** (verde), contador numérico (dorado cuando > 0).
+   - Tarjetas con count > 0 resaltan con borde naranja + glow.
 
 #### Denominaciones disponibles (`DENOMINATIONS`):
 | Valor | Imagen |
@@ -385,7 +382,6 @@ La validación compara `totalSelected === changeCents` (enteros en céntimos). C
 const [gamePhase,   setGamePhase]   = useState<GamePhase>('intro')
 const [introSlide,  setIntroSlide]  = useState<1 | 2>(1)
 const [round,       setRound]       = useState(0)
-const [subScreen,   setSubScreen]   = useState<SubScreen>('round')
 const [counts,      setCounts]      = useState<number[]>(DENOMINATIONS.map(() => 0))
 const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('waiting')
 const [lastCorrect, setLastCorrect] = useState<boolean | null>(null)
@@ -405,7 +401,9 @@ const totalSelected = counts.reduce((sum, count, i) => sum + count * DENOMINATIO
 | `.ch-intro` | Intro absoluta z-index 10 |
 | `.ch-header` | Header gameplay z-index 2 |
 | `.ch-score-badge` | Contador naranja/dorado |
-| `.ch-play-area` | Área de juego ronda, `padding-right: 15rem` para calculadora |
+| `.ch-play-area` | Área de gameplay integrada en grid: calculadora izquierda, reto centro, caja derecha |
+| `.ch-tool-panel` / `.ch-tool-panel--calculator` | Panel lateral para la calculadora |
+| `.ch-main-panel` | Contenedor central del reto y validación |
 | `.ch-challenge` | Panel blanco central con `key={round}` |
 | `.ch-challenge-cards` | Flex row: tarjeta producto + flecha + tarjeta pago |
 | `.ch-info-card` | Tarjeta blanca (producto o pago) |
@@ -413,28 +411,25 @@ const totalSelected = counts.reduce((sum, count, i) => sum + count * DENOMINATIO
 | `.ch-price-tag` | Etiqueta naranja con el precio del producto |
 | `.ch-payment-img` | Imagen de la moneda/billete de pago |
 | `.ch-payment-img--bill` | Variante landscape para billetes |
-| `.ch-btn--register` | Botón azul con imagen CajaRegistradora.png + texto |
-| `.ch-btn-register-img` | Imagen dentro del botón de la caja |
-| `.ch-selection-area` | Contenedor del botón caja + preview de selección |
+| `.ch-selection-area` | Contenedor de preview de selección |
 | `.ch-selected-coins` | Flex wrap con monedas elegidas (borde naranja discontinuo) |
 | `.ch-selected-item` | Tarjeta mini: imagen + ×N |
 | `.ch-selection-hint` | Texto de ayuda cuando no hay selección |
 | `.ch-round-footer` | Footer del panel: total + validar o feedback |
 | `.ch-round-footer--pass/fail` | Estados verde/rojo tras validar |
 | `.ch-feedback-msg--pass/fail` | Texto feedback correcto/incorrecto (colores oscuros — fondo blanco) |
-| `.ch-calculator` | Calculadora anclada esquina inferior derecha del play-area |
-| `.ch-register-wrap` | Contenedor pantalla caja, flex column, fondo verde oscuro |
+| `.ch-calculator` | Calculadora renderizada dentro del panel izquierdo |
+| `.ch-register-wrap` | Panel derecho integrado de caja registradora, flex column, fondo verde oscuro |
 | `.ch-register-topbar` | Barra superior de la caja |
-| `.ch-register-title-row` | Icono + título "Caja Registradora" |
-| `.ch-back-btn` | Botón "← Volver" translúcido |
-| `.ch-coins-grid` | Grid 6×2 llenando todo el espacio disponible |
+| `.ch-register-title-row` | Icono + título "Caja" |
+| `.ch-register-total` | Total seleccionado mostrado en la topbar de la caja |
+| `.ch-coins-grid` | Grid compacto de denominaciones en el panel derecho |
 | `.ch-coin-card` | Tarjeta de denominación |
 | `.ch-coin-card--active` | Borde naranja + glow cuando count > 0 |
-| `.ch-coin-img` | Imagen uniforme `clamp(60px, 9vw, 110px)²` para todas las denominaciones |
+| `.ch-coin-img` | Imagen uniforme compacta para monedas y billetes |
 | `.ch-coin-controls` | Fila −, contador, + |
 | `.ch-coin-count--active` | Contador dorado con animación chPopIn |
-| `.ch-register-reminder` | Tarjeta recordatorio flotante `position: absolute`, esquina inferior derecha, `pointer-events: none` |
-| `.ch-register-footer` | Footer de la caja: total + hint "← Vuelve para validar" |
+| `.ch-register-footer` | Footer de la caja con total seleccionado |
 | `.ch-result` | Resultado absoluto z-index 10 |
 
 ---

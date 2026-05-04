@@ -189,7 +189,6 @@ export default function AhorroObjetivo({ onComplete, onBack }: Props) {
               {score} <span className="ao-score-label">pts</span>
             </div>
             <div className="ao-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
-            <button className="ao-exit-btn" onClick={() => exit(false)} aria-label="Salir">✕</button>
           </header>
 
           <main className="ao-play-area">
