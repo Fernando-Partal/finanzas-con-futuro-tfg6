@@ -25,6 +25,7 @@ interface RoundData {
   paymentImg: string
   paymentLabel: string
   points: number
+  optimalCount: number
 }
 
 const DENOMINATIONS: Denomination[] = [
@@ -43,49 +44,54 @@ const DENOMINATIONS: Denomination[] = [
 
 const ROUNDS: RoundData[] = [
   {
-    productName:  'Chucherías',
-    productImg:   '/Articulos/Chucherias.png',
-    priceCents:   50,
+    productName:  'Pan',
+    productImg:   '/Articulos/Pan.png',
+    priceCents:   76,
     paymentCents: 100,
     paymentImg:   '/Dinero/1euro.png',
     paymentLabel: '1 €',
     points:       20,
+    optimalCount: 3, // 20c + 2c + 2c = 24c
   },
   {
     productName:  'Paquete de Arroz',
     productImg:   '/Articulos/Arroz.png',
-    priceCents:   120,
+    priceCents:   147,
     paymentCents: 200,
     paymentImg:   '/Dinero/2%20euros.png',
     paymentLabel: '2 €',
     points:       20,
-  },
-  {
-    productName:  'Cuadernos',
-    productImg:   '/Articulos/Cuadernos.png',
-    priceCents:   350,
-    paymentCents: 500,
-    paymentImg:   '/Dinero/5euros.png',
-    paymentLabel: '5 €',
-    points:       20,
+    optimalCount: 3, // 50c + 2c + 1c = 53c
   },
   {
     productName:  'Tableta de Chocolate',
     productImg:   '/Articulos/Chocolate.png',
-    priceCents:   400,
+    priceCents:   368,
+    paymentCents: 500,
+    paymentImg:   '/Dinero/5euros.png',
+    paymentLabel: '5 €',
+    points:       20,
+    optimalCount: 4, // 1€ + 20c + 10c + 2c = 132c
+  },
+  {
+    productName:  'Auriculares',
+    productImg:   '/Articulos/Auriculares.png',
+    priceCents:   849,
     paymentCents: 1000,
     paymentImg:   '/Dinero/10euros.png',
     paymentLabel: '10 €',
     points:       20,
+    optimalCount: 3, // 1€ + 50c + 1c = 151c
   },
   {
-    productName:  'Muñeca',
-    productImg:   '/Articulos/Mu%C3%B1eca.png',
-    priceCents:   1200,
+    productName:  'Mochila Escolar',
+    productImg:   '/Articulos/Mochila%20Escolar.png',
+    priceCents:   1429,
     paymentCents: 2000,
     paymentImg:   '/Dinero/20euros.png',
     paymentLabel: '20 €',
     points:       20,
+    optimalCount: 4, // 5€ + 50c + 20c + 1c = 571c
   },
 ]
 
@@ -94,6 +100,8 @@ function formatEuros(cents: number): string {
 }
 
 const PASS_SCORE   = 70
+const MAX_SCORE    = 150
+const BONUS_POINTS = 10
 const TOTAL_ROUNDS = ROUNDS.length
 
 export default function ElCambio({ onComplete, onBack }: Props) {
@@ -103,6 +111,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
   const [counts,      setCounts]      = useState<number[]>(DENOMINATIONS.map(() => 0))
   const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('waiting')
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null)
+  const [lastOptimal, setLastOptimal] = useState<boolean>(false)
   const [score,       setScore]       = useState(0)
   const [leaving,     setLeaving]     = useState(false)
 
@@ -112,6 +121,7 @@ export default function ElCambio({ onComplete, onBack }: Props) {
     (sum, count, i) => sum + count * DENOMINATIONS[i].valueCents,
     0,
   )
+  const totalCoins = counts.reduce((sum, c) => sum + c, 0)
   const passed = score >= PASS_SCORE
 
   function adjustCount(idx: number, delta: number) {
@@ -126,8 +136,11 @@ export default function ElCambio({ onComplete, onBack }: Props) {
   function handleValidate() {
     if (roundPhase !== 'waiting') return
     const isCorrect = totalSelected === changeCents
-    setScore((prev) => Math.min(prev + (isCorrect ? currentRound.points : 0), 100))
+    const isOptimal = isCorrect && totalCoins === currentRound.optimalCount
+    const earned    = isCorrect ? currentRound.points + (isOptimal ? BONUS_POINTS : 0) : 0
+    setScore((prev) => Math.min(prev + earned, MAX_SCORE))
     setLastCorrect(isCorrect)
+    setLastOptimal(isOptimal)
     setRoundPhase('feedback')
 
     setTimeout(() => {
@@ -137,10 +150,11 @@ export default function ElCambio({ onComplete, onBack }: Props) {
       } else {
         setCounts(DENOMINATIONS.map(() => 0))
         setLastCorrect(null)
+        setLastOptimal(false)
         setRoundPhase('waiting')
         setRound(nextRound)
       }
-    }, 2200)
+    }, 2400)
   }
 
   function exit(withScore: boolean) {
@@ -167,8 +181,8 @@ export default function ElCambio({ onComplete, onBack }: Props) {
               ) : (
                 <>
                   <p>Verás el <strong>precio</strong> del producto y cuánto te paga el cliente.</p>
-                  <p>Abre la <strong>caja registradora</strong> y elige las monedas y billetes para dar el cambio exacto.</p>
-                  <p>¡Usa la calculadora si necesitas ayuda!</p>
+                  <p>Elige las monedas y billetes de la <strong>caja registradora</strong> para dar el cambio exacto.</p>
+                  <p>🌟 Si usas <strong>las mínimas monedas y billetes posibles</strong>, ¡ganarás puntos extra!</p>
                 </>
               )}
             </div>
@@ -191,36 +205,25 @@ export default function ElCambio({ onComplete, onBack }: Props) {
       {gamePhase === 'playing' && currentRound && (
         <>
           <header className="ch-header">
+            <div className="ch-header-left">
+              <span className="ch-header-emoji" aria-hidden>🛒</span>
+              <div className="ch-header-titles">
+                <span className="ch-header-role">¡Eres el cajero!</span>
+                <span className="ch-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</span>
+              </div>
+            </div>
             <div className="ch-score-badge">
               {score} <span className="ch-score-label">pts</span>
             </div>
-            <div className="ch-round-label">Ronda {round + 1} / {TOTAL_ROUNDS}</div>
           </header>
 
           {/* ── Pantalla ronda ── */}
           <main className="ch-play-area">
-            <aside className="ch-tool-panel ch-tool-panel--calculator" aria-label="Calculadora de ayuda">
-              <Calculator className="ch-calculator" />
-            </aside>
-
             <div className="ch-main-panel">
               <section className="ch-challenge" key={round}>
-                <h2 className="ch-challenge-title">¿Cuánto cambio debes dar?</h2>
+                <h2 className="ch-challenge-title">¿Cuánto cambio devuelves?</h2>
 
                 <div className="ch-challenge-cards">
-                  <div className="ch-info-card">
-                    <span className="ch-card-header">Producto</span>
-                    <img
-                      src={currentRound.productImg}
-                      alt={currentRound.productName}
-                      className="ch-product-img"
-                    />
-                    <span className="ch-product-name">{currentRound.productName}</span>
-                    <span className="ch-price-tag">{formatEuros(currentRound.priceCents)}</span>
-                  </div>
-
-                  <div className="ch-arrow">→</div>
-
                   <div className="ch-info-card ch-info-card--payment">
                     <span className="ch-card-header">El cliente paga</span>
                     <img
@@ -230,46 +233,67 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                     />
                     <span className="ch-payment-amount">{currentRound.paymentLabel}</span>
                   </div>
+
+                  <div className="ch-info-card">
+                    <span className="ch-card-header">a cambio de</span>
+                    <img
+                      src={currentRound.productImg}
+                      alt={currentRound.productName}
+                      className="ch-product-img"
+                    />
+                    <span className="ch-product-name">{currentRound.productName}</span>
+                    <span className="ch-price-tag">{formatEuros(currentRound.priceCents)}</span>
+                  </div>
+
+                  <div
+                    className={`ch-info-card ch-info-card--mystery${roundPhase === 'feedback' ? (lastCorrect ? ' ch-info-card--pass' : ' ch-info-card--fail') : ''}${counts.some((c) => c > 0) && roundPhase === 'waiting' ? ' ch-info-card--building' : ''}`}
+                    aria-live="polite"
+                  >
+                    <span className="ch-card-header">le corresponde</span>
+                    {counts.some((c) => c > 0) ? (
+                      <div className="ch-mystery-tray">
+                        {DENOMINATIONS.map((den, idx) =>
+                          counts[idx] > 0 ? (
+                            <div key={den.valueCents} className="ch-mystery-item">
+                              <img
+                                src={den.img}
+                                alt={den.label}
+                                className={`ch-mystery-item-img${den.isBill ? ' ch-mystery-item-img--bill' : ''}`}
+                              />
+                              <span className="ch-mystery-item-count">×{counts[idx]}</span>
+                            </div>
+                          ) : null
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
-                {/* ── Selección de monedas ── */}
-                <div className="ch-selection-area" aria-live="polite">
-                  {counts.some((c) => c > 0) ? (
-                    <div className="ch-selected-coins">
-                      {DENOMINATIONS.map((den, idx) =>
-                        counts[idx] > 0 ? (
-                          <div key={den.valueCents} className="ch-selected-item">
-                            <img
-                              src={den.img}
-                              alt={den.label}
-                              className={`ch-selected-item-img${den.isBill ? ' ch-selected-item-img--bill' : ''}${den.valueCents === 100 ? ' ch-selected-item-img--one-euro' : ''}`}
-                            />
-                            <span className="ch-selected-item-count">×{counts[idx]}</span>
-                          </div>
-                        ) : null
-                      )}
-                    </div>
-                  ) : (
-                    <p className="ch-selection-hint">Elige el cambio en la caja registradora.</p>
-                  )}
-                </div>
-
-                {/* ── Footer: total + validar / feedback ── */}
+                {/* ── Footer: validar / feedback ── */}
                 <div className={`ch-round-footer${roundPhase === 'feedback' ? (lastCorrect ? ' ch-round-footer--pass' : ' ch-round-footer--fail') : ''}`}>
                   {roundPhase === 'waiting' ? (
-                    <>
-                      <div className="ch-total">
-                        <strong className="ch-total-value">{formatEuros(totalSelected)}</strong>
-                      </div>
-                      <button className="ch-btn ch-btn--validate" onClick={handleValidate}>
-                        Validar
-                      </button>
-                    </>
+                    <button
+                      className="ch-btn ch-btn--validate"
+                      onClick={handleValidate}
+                      disabled={totalSelected === 0}
+                    >
+                      ✓ Dar cambio
+                    </button>
                   ) : (
                     <div className={`ch-feedback-msg${lastCorrect ? ' ch-feedback-msg--pass' : ' ch-feedback-msg--fail'}`}>
-                      {lastCorrect
-                        ? '¡Cambio correcto! ¡Eres un gran cajero! 🎉'
-                        : `¡Casi! El cambio exacto era ${formatEuros(changeCents)}`}
+                      {lastCorrect ? (
+                        lastOptimal ? (
+                          <>
+                            <span className="ch-feedback-main">🌟 ¡Cambio óptimo! +{currentRound.points + BONUS_POINTS} pts</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="ch-feedback-main">¡Cambio correcto! +{currentRound.points} pts</span>
+                          </>
+                        )
+                      ) : (
+                        <span className="ch-feedback-main">¡Casi! El cambio exacto era {formatEuros(changeCents)}</span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -282,50 +306,120 @@ export default function ElCambio({ onComplete, onBack }: Props) {
                   <img src="/Articulos/CajaRegistradora.png" alt="" className="ch-register-icon" />
                   <span className="ch-register-title">Caja</span>
                 </div>
-                <div className="ch-register-total">{formatEuros(totalSelected)}</div>
               </div>
 
-              <div className="ch-coins-grid">
-                {DENOMINATIONS.map((den, idx) => (
-                  <div
-                    key={den.valueCents}
-                    className={`ch-coin-card${counts[idx] > 0 ? ' ch-coin-card--active' : ''}`}
-                  >
-                    <img
-                      src={den.img}
-                      alt={den.label}
-                      className={`ch-coin-img${den.valueCents === 100 ? ' ch-coin-img--one-euro' : ''}`}
-                    />
-                    <div className="ch-coin-controls">
-                      <button
-                        className="ch-coin-btn ch-coin-btn--minus"
-                        onClick={() => adjustCount(idx, -1)}
-                        disabled={counts[idx] === 0}
-                        aria-label={`Quitar ${den.label}`}
-                      >
-                        −
-                      </button>
-                      <span className={`ch-coin-count${counts[idx] > 0 ? ' ch-coin-count--active' : ''}`}>
-                        {counts[idx]}
-                      </span>
-                      <button
-                        className="ch-coin-btn ch-coin-btn--plus"
-                        onClick={() => adjustCount(idx, 1)}
-                        aria-label={`Añadir ${den.label}`}
-                      >
-                        +
-                      </button>
-                    </div>
+              <div className="ch-coins-sections">
+                <div className="ch-coins-section">
+                  <div className="ch-coins-section-label">
+                    <span className="ch-coins-section-icon" aria-hidden>🪙</span>
+                    Céntimos
                   </div>
-                ))}
-              </div>
+                  <div className="ch-coins-grid">
+                    {DENOMINATIONS.slice(0, 6).map((den, i) => {
+                      const idx = i
+                      const isFeedback = roundPhase === 'feedback'
+                      return (
+                        <div
+                          key={den.valueCents}
+                          className={`ch-coin-card${counts[idx] > 0 ? ' ch-coin-card--active' : ''}${isFeedback ? ' ch-coin-card--locked' : ''}`}
+                          onClick={() => !isFeedback && adjustCount(idx, 1)}
+                          onKeyDown={(e) => {
+                            if (isFeedback) return
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              adjustCount(idx, 1)
+                            }
+                          }}
+                          role="button"
+                          tabIndex={isFeedback ? -1 : 0}
+                          aria-label={`Añadir ${den.label}. Llevas ${counts[idx]}`}
+                        >
+                          <div className="ch-coin-img-wrap">
+                            <img
+                              src={den.img}
+                              alt=""
+                              className={`ch-coin-img${den.valueCents === 100 ? ' ch-coin-img--one-euro' : ''}`}
+                            />
+                            {counts[idx] > 0 && (
+                              <span className="ch-coin-badge">×{counts[idx]}</span>
+                            )}
+                          </div>
+                          {counts[idx] > 0 && !isFeedback && (
+                            <button
+                              type="button"
+                              className="ch-coin-remove"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                adjustCount(idx, -1)
+                              }}
+                              aria-label={`Quitar ${den.label}`}
+                            >
+                              −
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
 
-              <div className="ch-register-footer">
-                <div className="ch-total">
-                  <strong className="ch-total-value">{formatEuros(totalSelected)}</strong>
+                <div className="ch-coins-section">
+                  <div className="ch-coins-section-label">
+                    <span className="ch-coins-section-icon" aria-hidden>💶</span>
+                    Euros
+                  </div>
+                  <div className="ch-coins-grid">
+                    {DENOMINATIONS.slice(6).map((den, i) => {
+                      const idx = i + 6
+                      const isFeedback = roundPhase === 'feedback'
+                      return (
+                        <div
+                          key={den.valueCents}
+                          className={`ch-coin-card${counts[idx] > 0 ? ' ch-coin-card--active' : ''}${isFeedback ? ' ch-coin-card--locked' : ''}`}
+                          onClick={() => !isFeedback && adjustCount(idx, 1)}
+                          onKeyDown={(e) => {
+                            if (isFeedback) return
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              adjustCount(idx, 1)
+                            }
+                          }}
+                          role="button"
+                          tabIndex={isFeedback ? -1 : 0}
+                          aria-label={`Añadir ${den.label}. Llevas ${counts[idx]}`}
+                        >
+                          <div className="ch-coin-img-wrap">
+                            <img
+                              src={den.img}
+                              alt=""
+                              className={`ch-coin-img${den.valueCents === 100 ? ' ch-coin-img--one-euro' : ''}`}
+                            />
+                            {counts[idx] > 0 && (
+                              <span className="ch-coin-badge">×{counts[idx]}</span>
+                            )}
+                          </div>
+                          {counts[idx] > 0 && !isFeedback && (
+                            <button
+                              type="button"
+                              className="ch-coin-remove"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                adjustCount(idx, -1)
+                              }}
+                              aria-label={`Quitar ${den.label}`}
+                            >
+                              −
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </aside>
+
+            <Calculator className="ch-calculator" />
           </main>
         </>
       )}

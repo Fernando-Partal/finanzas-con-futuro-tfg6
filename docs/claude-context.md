@@ -43,24 +43,33 @@ src/
     └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2, 3 y 4)
 
 public/
-├── Cerdito.png          ← Mascota principal (Huchín)
-├── Niña.png             ← Personaje femenino
-├── Niño.png             ← Personaje masculino
-├── Paisaje.png          ← Fondo pantallas intro/selección
-├── Mapa.png             ← Fondo del mapa de aventuras
-├── FichaCoche.png       ← Ficha seleccionable: coche
-├── FichaPerro.png       ← Ficha seleccionable: perro
-├── FichaPato.png        ← Ficha seleccionable: pato
-├── FondoMinijuego1.png  ← Fondo compartido por todos los minijuegos
-├── Articulos/           ← Imágenes de productos
-│   ├── Arroz.png (Paquete de Arroz), Cuadernos.png, Filete.png (Carne), Fruta.png,
-│   │   Leche.png (Brick de Leche), Pasta.png (Paquete de Pasta), Pescado.png, Verduras.png      ← NECESIDADES (8)
-│   ├── Bicicleta.png, Chocolate.png (Tableta de Chocolate), Chucherias.png,
-│   │   CocheTeledirigido.png, Donuts.png, MandoPlay.png,
-│   │   Muñeca.png, Refresco.png                             ← DESEOS (8)
-│   ├── CajaRegistradora.png                                 ← Icono caja registradora (MJ4)
-│   ├── Movil.png, Play5.png, Viaje.png                      ← Objetivos de ahorro (MJ2)
-└── Dinero/              ← Imágenes de monedas y billetes (MJ4)
+├── Cerdito.png             ← Mascota principal (Huchín)
+├── Niña.png                ← Personaje femenino
+├── Niño.png                ← Personaje masculino
+├── Paisaje.png             ← Fondo pantallas intro/selección
+├── FondoInicio.png         ← Fondo alternativo (no en uso actual)
+├── FondoFinal.png          ← Fondo alternativo (no en uso actual)
+├── FondoMinijuego.png      ← Fondo compartido por todos los minijuegos
+├── FondoMinijuego1.png     ← (legado, sin uso actual)
+├── Mapa.png                ← Fondo del mapa de aventuras
+├── FichaCoche.png          ← Ficha seleccionable: coche
+├── FichaPerro.png          ← Ficha seleccionable: perro
+├── FichaPato.png           ← Ficha seleccionable: pato
+├── Articulos/              ← Imágenes de productos (catálogo ampliado)
+│   ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png, Huevos.png, Leche.png,
+│   │   Pan.png, Pasta.png, Pescado.png, Platanos.png, Verduras.png,
+│   │   Bolsa de Patatas.png, Botella de Agua.png                   ← Necesidades / básicos
+│   ├── Bicicleta.png, Chocolate.png, Chucherias.png, CocheTeledirigido.png,
+│   │   Donuts.png, Helado.png, MandoPlay.png, Muñeca.png, Peluche.png,
+│   │   Pizza.png, Refresco.png, Videojuego.png                     ← Deseos / capricho
+│   ├── 2Chocolates.png, 3Chocolates.png, 2Leche.png, 3Leche.png,
+│   │   2Refrescos.png, 3Refrescos.png                              ← Multipacks (MJ3)
+│   ├── Auriculares.png, Calcetines.png, Cepillo de dientes.png,
+│   │   Chaqueta.png, Mochila Escolar.png, Nintendo Switch.png,
+│   │   Patinete.png, Tablet.png, Zapatos.png                       ← Otros productos
+│   ├── CajaRegistradora.png                                        ← Icono caja registradora (MJ4)
+│   ├── Movil.png, Play5.png, Viaje.png                             ← Objetivos de ahorro (MJ2)
+└── Dinero/                 ← Imágenes de monedas y billetes (MJ4)
     ├── 1centimo.png, 2centimos.png, 5centimos.png
     ├── 10centimos.png, 20centimos.png, 50centimos.png
     ├── 1euro.png, 2 euros.png, 5euros.png
@@ -68,7 +77,7 @@ public/
 ```
 
 > Las imágenes están en `/public/` y se referencian desde la raíz: `/Cerdito.png`, etc.
-> El archivo `2 euros.png` tiene un espacio — referenciarlo como `/Dinero/2%20euros.png` en el código.
+> Los archivos con espacios (`2 euros.png`, `Mochila Escolar.png`, `Bolsa de Patatas.png`, etc.) deben referenciarse con `%20` en la URL.
 
 ---
 
@@ -159,6 +168,8 @@ const [points, setPoints]            // number — puntuación acumulada
   - Si aprueba Y no estaba completado → añade a `completedGames` y suma `score` a puntos globales
 - `onBack`: vuelve al mapa sin registrar nada
 
+> ⚠️ El Minijuego 4 puede entregar hasta **150 pts** (ver sección 4). El umbral de aprobado sigue siendo 70.
+
 ---
 
 ## 🎯 Orden de Minijuegos (índices 0–4)
@@ -177,7 +188,7 @@ const [points, setPoints]            // number — puntuación acumulada
 
 ### 0. 🛒 Necesidad vs Deseo — ✅ IMPLEMENTADO
 **Archivo:** `src/components/NecesidadDeseo.tsx` / `.css`
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` sobre toda la pantalla.
+**Fondo:** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)` sobre toda la pantalla.
 
 #### Fases del componente (`GamePhase`):
 1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables:
@@ -202,23 +213,11 @@ const [points, setPoints]            // number — puntuación acumulada
 - `PTS_WRONG = 5` por tocar deseo (mín. 0)
 - **Aprueba con ≥ 70 pts**
 
-#### Clases CSS clave (prefijo `nd-`):
-| Clase | Descripción |
-|-------|-------------|
-| `.nd-screen` | Raíz, flex column, 100vh |
-| `.nd-bg` | Fondo absoluto z-index 0 |
-| `.nd-overlay` | Overlay negro 0.65 permanente z-index 1 |
-| `.nd-intro` | Pantalla intro absoluta z-index 10 |
-| `.nd-header` | Header gameplay z-index 2 |
-| `.nd-play-area` | Área de juego, flex, position relative |
-| `.nd-result` | Resultado absoluto z-index 10, centrado |
-| `.nd-point-pop` | Indicador flotante puntos, position fixed |
-
 ---
 
 ### 1. 💸 ¿Cuánto cuesta? — ✅ IMPLEMENTADO
 **Archivo:** `src/components/PrecioCosas.tsx` / `.css`
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Fondo:** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)`.
 
 #### Fases del componente (`GamePhase`):
 1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables.
@@ -237,19 +236,11 @@ const [points, setPoints]            // number — puntuación acumulada
 - 5 rondas × 4 artículos = 20 posibles × 5 = **100 pts máximo**
 - **Aprueba con ≥ 70 pts**
 
-#### Clases CSS clave (prefijo `pc-`):
-| Clase | Descripción |
-|-------|-------------|
-| `.pc-screen` | Raíz, mismo patrón que `nd-screen` |
-| `.pc-cards-grid` | Grid 2×2 de tarjetas de artículo |
-| `.pc-bank` | Zona de etiquetas sueltas + drop target para devolver |
-| `.pc-btn--validate` | Botón verde "¡Validar!" |
-
 ---
 
 ### 2. 🐖 Ahorro con Objetivo — ✅ IMPLEMENTADO
 **Archivo:** `src/components/AhorroObjetivo.tsx` / `.css`
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Fondo:** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)`.
 **Componente auxiliar:** `Calculator.tsx` / `.css`
 
 #### Fases del componente (`GamePhase`):
@@ -272,19 +263,11 @@ const [points, setPoints]            // number — puntuación acumulada
 - `ROUND_POINTS = [33, 33, 34]` — los tres suman 100
 - **Aprueba con ≥ 50 pts** (umbral especial gestionado en `App.tsx`)
 
-#### Clases CSS clave (prefijo `ao-`):
-| Clase | Descripción |
-|-------|-------------|
-| `.ao-screen` | Raíz |
-| `.ao-goal-select` | Pantalla de selección de objetivo (paso 3) |
-| `.ao-challenge` | Panel blanco central con el reto |
-| `.ao-calculator` | Calculadora anclada esquina inferior derecha |
-
 ---
 
 ### 3. 🏷️ Comparar Ofertas — ✅ IMPLEMENTADO
 **Archivo:** `src/components/CompararOfertas.tsx` / `.css`
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Fondo:** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)`.
 **Componente auxiliar:** `Calculator.tsx`
 
 #### Fases del componente (`GamePhase`):
@@ -302,78 +285,87 @@ const [points, setPoints]            // number — puntuación acumulada
 - Fáciles: 15 pts × 2 = 30 pts | Medias: 20 pts × 2 = 40 pts | Difíciles: 15 pts × 2 = 30 pts
 - Total máximo: **100 pts** | **Aprueba con ≥ 70 pts**
 
-#### Clases CSS clave (prefijo `co-`):
-| Clase | Descripción |
-|-------|-------------|
-| `.co-screen` | Raíz |
-| `.co-options` | Flex row de tarjetas de opción |
-| `.co-option-card--correct/wrong/dim` | Estados de feedback |
-| `.co-calculator` | Calculadora anclada esquina inferior derecha |
-
 ---
 
-### 4. 💰 El Cajero — ✅ IMPLEMENTADO
+### 4. 💰 El Cajero — ✅ IMPLEMENTADO (REDISEÑADO)
 **Archivo:** `src/components/ElCambio.tsx` / `.css`
-**Fondo:** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)`.
+**Fondo:** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)`.
 **Componente auxiliar:** `Calculator.tsx`
 
 #### Fases del componente (`GamePhase`):
 1. `'intro'` — Huchín con bocadillo. **Dos slides** navegables:
    - Slide 1: bienvenida, explica el rol de cajero.
-   - Slide 2: instrucciones de la caja registradora y la calculadora.
-2. `'playing'` — Gameplay activo (5 rondas) en **una única pantalla integrada**.
-   - Columna izquierda: calculadora de ayuda (`Calculator`).
-   - Panel central: producto, pago del cliente, vista previa de monedas seleccionadas, total y validación.
-   - Panel derecho: caja registradora integrada con monedas/billetes.
+   - Slide 2: instrucciones + **mención del bonus 🌟 por usar las mínimas piezas**.
+2. `'playing'` — Gameplay activo (5 rondas) en **una única pantalla integrada con 2 columnas**:
+   - Panel central: ecuación visual ("El cliente paga … a cambio de … le corresponde …") + botón validar/feedback.
+   - Panel derecho: caja registradora con secciones "Céntimos" y "Euros".
+   - **Calculadora flotante** absolute en esquina inferior izquierda (sin marco/fondo de panel).
 3. `'result'` — Puntuación + mensaje pass/fail + botón continuar o reintentar.
 
-#### Mecánica de juego:
-El alumno toma el rol de **cajero**. En cada ronda ve un producto con su precio y la moneda/billete con la que paga el cliente. Debe calcular el cambio con la calculadora y seleccionar directamente en la caja registradora las monedas y billetes exactos.
+#### Mecánica de juego — Rol del alumno: **cajero**
+En cada ronda ve un producto con su precio y la moneda/billete con la que paga el cliente. Debe calcular mentalmente (o con la calculadora flotante) el cambio y construirlo seleccionando monedas/billetes de la caja. Si lo hace correctamente con el **mínimo número de piezas posibles**, gana puntos extra.
 
-**Flujo dentro de una ronda (pantalla integrada):**
-1. La **calculadora** queda siempre visible en el panel izquierdo para operaciones de apoyo.
-2. El **panel central** muestra:
-   - Tarjeta del producto (imagen, nombre, precio en tag naranja).
-   - Tarjeta de pago ("El cliente paga" + imagen moneda/billete + cantidad).
-   - Área de **vista previa de monedas seleccionadas**: muestra imagen + ×N de cada denominación elegida, o texto de ayuda si no hay ninguna.
-   - Footer con **total seleccionado** y botón verde **"Validar"**.
-   - Tras validar: feedback en el footer (verde/rojo, 2,2 s) y avance a la siguiente ronda o resultado.
-3. El **panel derecho** integra la caja registradora:
-   - Topbar con icono de `CajaRegistradora.png`, título corto "Caja" y total seleccionado.
-   - Cuadrícula compacta de las 11 denominaciones.
-   - Cada tarjeta: imagen de moneda/billete, botones **−** (rojo) y **+** (verde), contador numérico (dorado cuando > 0).
-   - Tarjetas con count > 0 resaltan con borde naranja + glow.
+**Estructura del panel central (`ch-challenge`):**
+- Título: "¿Cuánto cambio devuelves?"
+- Tres tarjetas en fila (sin operadores `−` / `=` — leen como frase):
+  1. **"El cliente paga"** [imagen del billete/moneda] [etiqueta `1 €` / `2 €` / …]
+  2. **"a cambio de"** [imagen del producto] [nombre] [etiqueta naranja con precio]
+  3. **"le corresponde"** [bandeja con borde discontinuo naranja, **altura fija con scroll vertical**, muestra cada moneda/billete elegido como mini-tarjeta `imagen ×N`]
+- La tercera tarjeta cambia de borde a verde sólido si acierta y rojo sólido si falla.
+- Footer: botón verde **"✓ Dar cambio"** (deshabilitado mientras `totalSelected === 0`) o mensaje de feedback.
+
+**Caja registradora (`ch-register-wrap`):**
+- Topbar con icono `CajaRegistradora.png` + título "Caja" (sin display numérico).
+- Dos secciones con etiquetas: **🪙 Céntimos** (1c, 2c, 5c, 10c, 20c, 50c) y **💶 Euros** (1€, 2€, 5€, 10€, 20€).
+- Cada moneda/billete es una tarjeta clickeable:
+  - **Click en cualquier parte de la tarjeta = +1**
+  - Sin etiqueta de denominación (solo la imagen).
+  - Si `count > 0`: badge naranja `×N` superpuesto sobre la imagen + botón rojo `−` en la esquina superior izquierda (con `stopPropagation`) para quitar uno.
+  - Estado activo: gradiente dorado, borde naranja, sombra/glow.
+
+**Calculadora (`Calculator`):**
+- Posicionada `position: absolute; left: ~1rem; bottom: ~1rem; z-index: 5`.
+- **Sin panel/fondo** alrededor — solo la calculadora flotante.
+- En responsive (≤ 960px) vuelve a flujo estático debajo de la caja.
+- El panel central tiene `padding-left: clamp(13rem, 18vw, 15.5rem)` para no solaparse con la calculadora.
 
 #### Denominaciones disponibles (`DENOMINATIONS`):
-| Valor | Imagen |
-|-------|--------|
-| 1 c | `/Dinero/1centimo.png` |
-| 2 c | `/Dinero/2centimos.png` |
-| 5 c | `/Dinero/5centimos.png` |
-| 10 c | `/Dinero/10centimos.png` |
-| 20 c | `/Dinero/20centimos.png` |
-| 50 c | `/Dinero/50centimos.png` |
-| 1 € | `/Dinero/1euro.png` |
-| 2 € | `/Dinero/2%20euros.png` (ojo: espacio en filename) |
-| 5 € | `/Dinero/5euros.png` |
-| 10 € | `/Dinero/10euros.png` |
-| 20 € | `/Dinero/20euros.png` |
+| Valor | Imagen | Tipo |
+|-------|--------|------|
+| 1 c | `/Dinero/1centimo.png` | moneda |
+| 2 c | `/Dinero/2centimos.png` | moneda |
+| 5 c | `/Dinero/5centimos.png` | moneda |
+| 10 c | `/Dinero/10centimos.png` | moneda |
+| 20 c | `/Dinero/20centimos.png` | moneda |
+| 50 c | `/Dinero/50centimos.png` | moneda |
+| 1 € | `/Dinero/1euro.png` | moneda |
+| 2 € | `/Dinero/2%20euros.png` | moneda |
+| 5 € | `/Dinero/5euros.png` | billete |
+| 10 € | `/Dinero/10euros.png` | billete |
+| 20 € | `/Dinero/20euros.png` | billete |
 
-#### Rondas (`ROUNDS`) — precios en céntimos enteros para evitar errores float:
-| Ronda | Producto | Precio | Pago | Cambio | Puntos |
-|-------|----------|--------|------|--------|--------|
-| 1 | Chucherías | 0,50 € | 1 € | **0,50 €** | 20 |
-| 2 | Paquete de Arroz | 1,20 € | 2 € | **0,80 €** | 20 |
-| 3 | Cuadernos | 3,50 € | 5 € | **1,50 €** | 20 |
-| 4 | Tableta de Chocolate | 4,00 € | 10 € | **6,00 €** | 20 |
-| 5 | Muñeca | 12,00 € | 20 € | **8,00 €** | 20 |
+#### Rondas (`ROUNDS`) — precios en céntimos enteros, **diseñados para forzar combinaciones no triviales**:
+| Ronda | Producto | Precio | Pago | Cambio | Combinación óptima | Piezas óptimas |
+|-------|----------|--------|------|--------|--------------------|----------------|
+| 1 | Pan | 0,76 € | 1 € | **0,24 €** | 20c + 2c + 2c | **3** |
+| 2 | Paquete de Arroz | 1,47 € | 2 € | **0,53 €** | 50c + 2c + 1c | **3** |
+| 3 | Tableta de Chocolate | 3,68 € | 5 € | **1,32 €** | 1€ + 20c + 10c + 2c | **4** |
+| 4 | Auriculares | 8,49 € | 10 € | **1,51 €** | 1€ + 50c + 1c | **3** |
+| 5 | Mochila Escolar | 14,29 € | 20 € | **5,71 €** | 5€ + 50c + 20c + 1c | **4** |
 
-La validación compara `totalSelected === changeCents` (enteros en céntimos). Cualquier combinación de monedas que sume exactamente el cambio es válida.
+> Validación: `totalSelected === changeCents` (enteros en céntimos). Cualquier combinación válida cuenta como correcta; el bonus solo se otorga si además `Σcounts === optimalCount`.
 
-#### Puntuación:
-- 5 rondas × 20 pts = **100 pts máximo**
-- **Aprueba con ≥ 70 pts**
+#### Puntuación con sistema de bonus:
+- **Cambio correcto:** +20 pts (`points` por ronda)
+- **Cambio óptimo (mínimas piezas):** +10 pts extra (`BONUS_POINTS`)
+- Por ronda: 0 / 20 / 30 pts
+- **Máximo total: 5 × 30 = 150 pts** (`MAX_SCORE`)
+- **Aprueba con ≥ 70 pts** (`PASS_SCORE`) — sin cambios respecto a la lógica de App.tsx
 - Los fallos no restan
+- Feedback diferenciado:
+  - Óptimo: `🌟 ¡Cambio óptimo! +30 pts`
+  - Correcto no óptimo: `¡Cambio correcto! +20 pts`
+  - Incorrecto: `¡Casi! El cambio exacto era X,XX €`
 
 #### Estado del componente:
 ```typescript
@@ -383,52 +375,70 @@ const [round,       setRound]       = useState(0)
 const [counts,      setCounts]      = useState<number[]>(DENOMINATIONS.map(() => 0))
 const [roundPhase,  setRoundPhase]  = useState<RoundPhase>('waiting')
 const [lastCorrect, setLastCorrect] = useState<boolean | null>(null)
+const [lastOptimal, setLastOptimal] = useState<boolean>(false)
 const [score,       setScore]       = useState(0)
 const [leaving,     setLeaving]     = useState(false)
 
 // Derivados:
 const changeCents   = currentRound.paymentCents - currentRound.priceCents
-const totalSelected = counts.reduce((sum, count, i) => sum + count * DENOMINATIONS[i].valueCents, 0)
+const totalSelected = counts.reduce((sum, c, i) => sum + c * DENOMINATIONS[i].valueCents, 0)
+const totalCoins    = counts.reduce((sum, c) => sum + c, 0)
+const passed        = score >= PASS_SCORE
 ```
+
+#### Layout (grid):
+```
+┌──────────────────────────────────────────────────┐
+│  HEADER: 🛒 ¡Eres el cajero! · Ronda N/5    PTS  │
+├──────────────────────────────────────┬───────────┤
+│                                      │           │
+│  [Pago] [Producto] [Bandeja-cambio]  │   CAJA    │
+│                                      │  Céntimos │
+│            [Validar / Feedback]      │  Euros    │
+│                                      │           │
+│ ┌──────┐                             │           │
+│ │ Calc │ ← absolute bottom-left      │           │
+│ └──────┘                             │           │
+└──────────────────────────────────────┴───────────┘
+```
+
+`grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem)`
 
 #### Clases CSS clave (prefijo `ch-`):
 | Clase | Descripción |
 |-------|-------------|
-| `.ch-screen` | Raíz, flex column, 100vh |
-| `.ch-bg` / `.ch-overlay` | Fondo + overlay negro 0.65 |
-| `.ch-intro` | Intro absoluta z-index 10 |
-| `.ch-header` | Header gameplay z-index 2 |
-| `.ch-score-badge` | Contador naranja/dorado |
-| `.ch-play-area` | Área de gameplay integrada en grid: calculadora izquierda, reto centro, caja derecha |
-| `.ch-tool-panel` / `.ch-tool-panel--calculator` | Panel lateral para la calculadora |
-| `.ch-main-panel` | Contenedor central del reto y validación |
-| `.ch-challenge` | Panel blanco central con `key={round}` |
-| `.ch-challenge-cards` | Flex row: tarjeta producto + flecha + tarjeta pago |
-| `.ch-info-card` | Tarjeta blanca (producto o pago) |
-| `.ch-info-card--payment` | Variante azul claro para el pago |
+| `.ch-screen` / `.ch-bg` / `.ch-overlay` | Raíz, fondo, overlay negro 0.65 |
+| `.ch-intro` | Pantalla intro absoluta z-index 10 |
+| `.ch-header` | Header con `ch-header-left` (emoji + role + ronda) y `ch-score-badge` |
+| `.ch-header-emoji` / `.ch-header-role` | "🛒" + "¡Eres el cajero!" en dorado |
+| `.ch-play-area` | Grid 2 columnas |
+| `.ch-main-panel` | Columna central, con `padding-left` para no solapar con la calculadora |
+| `.ch-challenge` | Panel blanco/crema con la ecuación visual |
+| `.ch-challenge-cards` | Flex row de las 3 tarjetas |
+| `.ch-info-card` / `--payment` / `--mystery` | Tarjetas de la ecuación; mystery es la bandeja con borde discontinuo |
+| `.ch-info-card--pass` / `--fail` / `--building` | Estados visuales de la bandeja |
+| `.ch-mystery-tray` | Contenedor flex-wrap con scroll vertical y altura fija |
+| `.ch-mystery-item` / `-img` / `-img--bill` / `-count` | Mini-tarjeta `imagen ×N` |
+| `.ch-card-header` | Etiqueta gris uppercase ("El cliente paga", "a cambio de", "le corresponde") |
 | `.ch-price-tag` | Etiqueta naranja con el precio del producto |
-| `.ch-payment-img` | Imagen de la moneda/billete de pago |
-| `.ch-payment-img--bill` | Variante landscape para billetes |
-| `.ch-selection-area` | Contenedor de preview de selección |
-| `.ch-selected-coins` | Flex wrap con monedas elegidas (borde naranja discontinuo) |
-| `.ch-selected-item` | Tarjeta mini: imagen + ×N |
-| `.ch-selection-hint` | Texto de ayuda cuando no hay selección |
-| `.ch-round-footer` | Footer del panel: total + validar o feedback |
-| `.ch-round-footer--pass/fail` | Estados verde/rojo tras validar |
-| `.ch-feedback-msg--pass/fail` | Texto feedback correcto/incorrecto (colores oscuros — fondo blanco) |
-| `.ch-calculator` | Calculadora renderizada dentro del panel izquierdo |
-| `.ch-register-wrap` | Panel derecho integrado de caja registradora, flex column, fondo verde oscuro |
-| `.ch-register-topbar` | Barra superior de la caja |
-| `.ch-register-title-row` | Icono + título "Caja" |
-| `.ch-register-total` | Total seleccionado mostrado en la topbar de la caja |
-| `.ch-coins-grid` | Grid compacto de denominaciones en el panel derecho |
-| `.ch-coin-card` | Tarjeta de denominación |
-| `.ch-coin-card--active` | Borde naranja + glow cuando count > 0 |
-| `.ch-coin-img` | Imagen uniforme compacta para monedas y billetes |
-| `.ch-coin-controls` | Fila −, contador, + |
-| `.ch-coin-count--active` | Contador dorado con animación chPopIn |
-| `.ch-register-footer` | Footer de la caja con total seleccionado |
-| `.ch-result` | Resultado absoluto z-index 10 |
+| `.ch-payment-img` / `--bill` | Imagen del pago, con variante landscape para billetes |
+| `.ch-payment-amount` | Etiqueta numérica del pago (`1 €`, `2 €`, …) |
+| `.ch-round-footer` / `--pass` / `--fail` | Footer con botón validar o feedback |
+| `.ch-feedback-msg` / `--pass` / `--fail` | Mensaje resultado de la ronda |
+| `.ch-feedback-main` | Línea principal del feedback |
+| `.ch-btn--validate` | Botón verde "✓ Dar cambio" |
+| `.ch-calculator` | Calculadora absolute bottom-left, sin fondo |
+| `.ch-register-wrap` | Panel derecho fondo verde oscuro + borde dorado |
+| `.ch-register-topbar` | Barra superior con icono y "Caja" |
+| `.ch-coins-sections` | Contenedor flex column de las dos secciones |
+| `.ch-coins-section` / `-label` / `-icon` | Sección con etiqueta "Céntimos" / "Euros" |
+| `.ch-coins-grid` | Grid 3 columnas de tarjetas de moneda |
+| `.ch-coin-card` / `--active` / `--locked` | Tarjeta clickeable; activa = gradiente dorado; locked durante feedback |
+| `.ch-coin-img-wrap` | Contenedor relative para superponer el badge |
+| `.ch-coin-img` | Imagen de la moneda/billete |
+| `.ch-coin-badge` | Badge naranja `×N` esquina inferior derecha |
+| `.ch-coin-remove` | Botón rojo `−` esquina superior izquierda (solo si count > 0) |
+| `.ch-result` | Pantalla resultado absoluta z-index 10 |
 
 ---
 
@@ -436,7 +446,7 @@ const totalSelected = counts.reduce((sum, count, i) => sum + count * DENOMINATIO
 
 - **Fondo intro/selección:** `Paisaje.png` con `background-size: cover; background-position: bottom center`
 - **Fondo mapa:** `Mapa.png` con `background-size: cover; background-position: center center`
-- **Fondo minijuegos (todos):** `FondoMinijuego1.png` + overlay permanente `rgba(0,0,0,0.65)` siempre visible
+- **Fondo minijuegos (todos):** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)` siempre visible
 - **Paleta:** naranja/amarillo para botones (`#ff6f00` → `#ffa000`), sombra `#bf360c`; dorado `#ffcc02` para bordes de bocadillos
 - **Bocadillos:** fondo blanco, borde `#ffcc02`, triángulo CSS, sombra
 - **Botones principales:** `border-radius: 60px`, gradiente naranja, sombra 3D, hover = `translateY(-4px)`
@@ -517,7 +527,7 @@ const D = DEBUG.enabled ? DEBUG : null
 ### Patrón estándar de minijuego (ver CompararOfertas como referencia canónica):
 - Fases: `'intro' → 'playing' → 'result'`
 - Intro: 2 slides con Huchín, bocadillo con `key={introSlide}` para reanimar
-- Fondo: `FondoMinijuego1.png` + `<div className="XX-overlay" />` (z-index 1) siempre visible
+- Fondo: `FondoMinijuego.png` + `<div className="XX-overlay" />` (z-index 1) siempre visible
 - Resultado: `position: absolute; inset: 0; z-index: 10` apilado sobre el gameplay
 - Función `exit(withScore)`: `setLeaving(true)` → 550ms → `onComplete(score)` o `onBack()`
 - Prefijo CSS único por componente (`nd-`, `pc-`, `ao-`, `co-`, `ch-`…)
@@ -528,4 +538,5 @@ const D = DEBUG.enabled ? DEBUG : null
 - **Timer con RAF:** `requestAnimationFrame` para suavidad, cancelar en el cleanup del `useEffect`
 - **Pools sin repetición:** `useRef<Item[]>` inicializado al empezar, repuesto cuando se agota
 - **Aritmética monetaria:** operar siempre en **céntimos enteros** para evitar errores de punto flotante. Formatear a euros solo en UI con `(cents / 100).toFixed(2).replace('.', ',') + ' €'`
-- **Nombres de archivo con espacios:** codificar como `%20` en los src de imágenes (ej: `/Dinero/2%20euros.png`)
+- **Nombres de archivo con espacios:** codificar como `%20` en los src de imágenes (ej: `/Dinero/2%20euros.png`, `/Articulos/Mochila%20Escolar.png`)
+- **Bonus por solución óptima (MJ4):** comparar el número total de piezas (`Σcounts`) contra el `optimalCount` precalculado en cada ronda — si coincide y la suma es correcta, otorgar `BONUS_POINTS`. El óptimo se calcula a mano (greedy descendente sobre denominaciones EUR es válido por ser sistema canónico).

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import HomeScreen from './components/HomeScreen'
-import IntroScreen from './components/IntroScreen'
 import CharacterSelect from './components/CharacterSelect'
 import FichaSelect from './components/FichaSelect'
 import MapScreen from './components/MapScreen'
@@ -10,7 +9,7 @@ import AhorroObjetivo from './components/AhorroObjetivo'
 import CompararOfertas from './components/CompararOfertas'
 import ElCambio from './components/ElCambio'
 
-type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
+type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
 interface PlayerData {
   name: string
@@ -39,10 +38,10 @@ interface PlayerData {
 //     screen: 'minigame', currentGame: 2
 // =============================================================================
 const DEBUG = {
-  enabled: true,
+  enabled: false,
 
   screen:         'minigame' as Screen,
-  currentGame:    4          as number | null,
+  currentGame:    0          as number | null,
   completedGames: [0, 1, 2, 3]  as number[],
   points:         400,
   player: {
@@ -63,11 +62,7 @@ function App() {
   const [points, setPoints]            = useState<number>(D?.points ?? 0)
 
   if (screen === 'home') {
-    return <HomeScreen onStart={() => setScreen('intro')} />
-  }
-
-  if (screen === 'intro') {
-    return <IntroScreen onContinue={() => setScreen('character-select')} />
+    return <HomeScreen onStart={() => setScreen('character-select')} />
   }
 
   if (screen === 'character-select') {
