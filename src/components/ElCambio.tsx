@@ -52,7 +52,7 @@ const ROUNDS: RoundData[] = [
     points:       20,
   },
   {
-    productName:  'Arroz',
+    productName:  'Paquete de Arroz',
     productImg:   '/Articulos/Arroz.png',
     priceCents:   120,
     paymentCents: 200,
@@ -70,7 +70,7 @@ const ROUNDS: RoundData[] = [
     points:       20,
   },
   {
-    productName:  'Chocolate',
+    productName:  'Tableta de Chocolate',
     productImg:   '/Articulos/Chocolate.png',
     priceCents:   400,
     paymentCents: 1000,

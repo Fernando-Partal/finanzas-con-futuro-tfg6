@@ -8,42 +8,61 @@ interface Item {
 }
 
 const ALL_ITEMS: Item[] = [
-  { name: 'Arroz',              img: '/Articulos/Arroz.png',             type: 'necesidad' },
+  { name: 'Paquete de Arroz',   img: '/Articulos/Arroz.png',             type: 'necesidad' },
+  { name: 'Auriculares',        img: '/Articulos/Auriculares.png',       type: 'deseo'     },
   { name: 'Bicicleta',          img: '/Articulos/Bicicleta.png',         type: 'deseo'     },
-  { name: 'Chocolate',          img: '/Articulos/Chocolate.png',         type: 'deseo'     },
+  { name: 'Bolsa de patatas',   img: '/Articulos/Bolsa%20de%20Patatas.png', type: 'deseo'  },
+  { name: 'Botella de agua',    img: '/Articulos/Botella%20de%20Agua.png', type: 'necesidad' },
+  { name: 'Calcetines',         img: '/Articulos/Calcetines.png',        type: 'necesidad' },
+  { name: 'Cepillo de dientes', img: '/Articulos/Cepillo%20de%20dientes.png', type: 'necesidad' },
+  { name: 'Chaqueta',           img: '/Articulos/Chaqueta.png',          type: 'necesidad' },
+  { name: 'Tableta de Chocolate', img: '/Articulos/Chocolate.png',       type: 'deseo'     },
   { name: 'Chucherías',         img: '/Articulos/Chucherias.png',        type: 'deseo'     },
   { name: 'Coche teledirigido', img: '/Articulos/CocheTeledirigido.png', type: 'deseo'     },
   { name: 'Cuadernos',          img: '/Articulos/Cuadernos.png',         type: 'necesidad' },
   { name: 'Donuts',             img: '/Articulos/Donuts.png',            type: 'deseo'     },
-  { name: 'Filete',             img: '/Articulos/Filete.png',            type: 'necesidad' },
+  { name: 'Carne',              img: '/Articulos/Filete.png',            type: 'necesidad' },
   { name: 'Fruta',              img: '/Articulos/Fruta.png',             type: 'necesidad' },
-  { name: 'Leche',              img: '/Articulos/Leche.png',             type: 'necesidad' },
+  { name: 'Helado',             img: '/Articulos/Helado.png',            type: 'deseo'     },
+  { name: 'Huevos',             img: '/Articulos/Huevos.png',            type: 'necesidad' },
+  { name: 'Brick de Leche',     img: '/Articulos/Leche.png',             type: 'necesidad' },
   { name: 'Mando de juego',     img: '/Articulos/MandoPlay.png',         type: 'deseo'     },
-  { name: 'Muñeca',             img: '/Articulos/Muñeca.png',            type: 'deseo'     },
-  { name: 'Pasta',              img: '/Articulos/Pasta.png',             type: 'necesidad' },
+  { name: 'Mochila escolar',    img: '/Articulos/Mochila%20Escolar.png', type: 'necesidad' },
+  { name: 'Móvil',              img: '/Articulos/Movil.png',             type: 'deseo'     },
+  { name: 'Nintendo Switch',    img: '/Articulos/Nintendo%20Switch.png', type: 'deseo'     },
+  { name: 'Muñeca',             img: '/Articulos/Mu%C3%B1eca.png',       type: 'deseo'     },
+  { name: 'Paquete de Pasta',   img: '/Articulos/Pasta.png',             type: 'necesidad' },
+  { name: 'Patinete',           img: '/Articulos/Patinete.png',          type: 'deseo'     },
+  { name: 'Peluche',            img: '/Articulos/Peluche.png',           type: 'deseo'     },
   { name: 'Pescado',            img: '/Articulos/Pescado.png',           type: 'necesidad' },
+  { name: 'Pizza',              img: '/Articulos/Pizza.png',             type: 'deseo'     },
+  { name: 'Play5',              img: '/Articulos/Play5.png',             type: 'deseo'     },
   { name: 'Refresco',           img: '/Articulos/Refresco.png',          type: 'deseo'     },
+  { name: 'Tablet',             img: '/Articulos/Tablet.png',            type: 'deseo'     },
+  { name: 'Viaje',              img: '/Articulos/Viaje.png',             type: 'deseo'     },
   { name: 'Verduras',           img: '/Articulos/Verduras.png',          type: 'necesidad' },
+  { name: 'Videojuego',         img: '/Articulos/Videojuego.png',        type: 'deseo'     },
+  { name: 'Zapatos',            img: '/Articulos/Zapatos.png',           type: 'necesidad' },
 ]
 
 const NECESIDAD_ITEMS = ALL_ITEMS.filter(i => i.type === 'necesidad')
 const DESEO_ITEMS     = ALL_ITEMS.filter(i => i.type === 'deseo')
 
-// 8 rondas — total necesidades = 3+3+2+2+2+2+2+2 = 18  →  cap en 100 puntos
+// 8 rondas — total necesidades = 4+3+3+3+3+2+2+2 = 22  →  cap en 100 puntos
 // Dificultad: primeras rondas más tiempo y más necesidades; últimas más deseos y menos tiempo
 const ROUND_CONFIGS = [
-  { n: 3, d: 1, ms: 9000 },  // R1 — 4 ítems, 9 s
-  { n: 3, d: 2, ms: 8000 },  // R2 — 5 ítems, 8 s
-  { n: 2, d: 3, ms: 7000 },  // R3 — 5 ítems, 7 s
-  { n: 2, d: 3, ms: 6000 },  // R4 — 5 ítems, 6 s
-  { n: 2, d: 3, ms: 5000 },  // R5 — 5 ítems, 5 s
+  { n: 4, d: 2, ms: 8000 },  // R1 — 6 ítems, 8 s
+  { n: 3, d: 3, ms: 7000 },  // R2 — 6 ítems, 7 s
+  { n: 3, d: 3, ms: 6000 },  // R3 — 6 ítems, 6 s
+  { n: 3, d: 3, ms: 6000 },  // R4 — 6 ítems, 6 s
+  { n: 3, d: 3, ms: 5000 },  // R5 — 6 ítems, 5 s
   { n: 2, d: 4, ms: 4000 },  // R6 — 6 ítems, 4 s
   { n: 2, d: 4, ms: 3000 },  // R7 — 6 ítems, 3 s
   { n: 2, d: 4, ms: 2500 },  // R8 — 6 ítems, 2.5 s
 ] as const
 
 const TOTAL_ROUNDS = ROUND_CONFIGS.length
-const PTS_CORRECT  = 6   // tocar una necesidad (18 necesidades × 6 = 108 → cap 100, necesitas ~17/18 para llegar a 100)
+const PTS_CORRECT  = 6   // tocar una necesidad (22 necesidades × 6 = 132 → cap 100)
 const PTS_WRONG    = 5   // tocar un deseo por error
 
 type GamePhase  = 'intro' | 'playing' | 'result'
@@ -87,7 +106,6 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
   const [leaving,    setLeaving]    = useState(false)
   const [introSlide,   setIntroSlide]   = useState<1 | 2>(1)
   const [pointPops,    setPointPops]    = useState<PointPop[]>([])
-  const [showAnswers,  setShowAnswers]  = useState(false)
 
   // Refs para pools de ítems — evitan repeticiones entre rondas
   const needPool   = useRef<Item[]>([])
@@ -354,14 +372,9 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
 
           <div className="nd-result-actions">
             {passed ? (
-              <>
-                <button className="nd-btn nd-btn--answers" onClick={() => setShowAnswers(true)}>
-                  Ver respuestas
-                </button>
-                <button className="nd-btn nd-btn--continue" onClick={() => exit(true)}>
-                  ¡Continuar!
-                </button>
-              </>
+              <button className="nd-btn nd-btn--continue" onClick={() => exit(true)}>
+                ¡Continuar!
+              </button>
             ) : (
               <button className="nd-btn nd-btn--retry" onClick={() => exit(false)}>
                 ¡Intentar de nuevo!
@@ -371,37 +384,6 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
         </div>
       )}
 
-      {/* ══════════════════════════════════
-          PANTALLA DE RESPUESTAS
-          ══════════════════════════════════ */}
-      {showAnswers && (
-        <div className="nd-answers">
-          <p className="nd-answers-title">¿Qué es cada cosa?</p>
-          <div className="nd-result-items">
-            <div className="nd-result-items-col">
-              <span className="nd-result-items-title nd-result-items-title--need">✅ Necesidades</span>
-              {NECESIDAD_ITEMS.map(item => (
-                <div key={item.name} className="nd-result-item-mini">
-                  <img src={item.img} alt={item.name} />
-                  <span>{item.name}</span>
-                </div>
-              ))}
-            </div>
-            <div className="nd-result-items-col">
-              <span className="nd-result-items-title nd-result-items-title--want">❌ Deseos</span>
-              {DESEO_ITEMS.map(item => (
-                <div key={item.name} className="nd-result-item-mini">
-                  <img src={item.img} alt={item.name} />
-                  <span>{item.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <button className="nd-btn nd-btn--map" onClick={() => setShowAnswers(false)}>
-            ← Volver
-          </button>
-        </div>
-      )}
     </div>
   )
 }

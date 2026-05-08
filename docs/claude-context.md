@@ -53,9 +53,9 @@ public/
 ├── FichaPato.png        ← Ficha seleccionable: pato
 ├── FondoMinijuego1.png  ← Fondo compartido por todos los minijuegos
 ├── Articulos/           ← Imágenes de productos
-│   ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png,
-│   │   Leche.png, Pasta.png, Pescado.png, Verduras.png      ← NECESIDADES (8)
-│   ├── Bicicleta.png, Chocolate.png, Chucherias.png,
+│   ├── Arroz.png (Paquete de Arroz), Cuadernos.png, Filete.png (Carne), Fruta.png,
+│   │   Leche.png (Brick de Leche), Pasta.png (Paquete de Pasta), Pescado.png, Verduras.png      ← NECESIDADES (8)
+│   ├── Bicicleta.png, Chocolate.png (Tableta de Chocolate), Chucherias.png,
 │   │   CocheTeledirigido.png, Donuts.png, MandoPlay.png,
 │   │   Muñeca.png, Refresco.png                             ← DESEOS (8)
 │   ├── CajaRegistradora.png                                 ← Icono caja registradora (MJ4)
@@ -188,9 +188,8 @@ const [points, setPoints]            // number — puntuación acumulada
 3. `'result'` — Pantalla de resultado centrada, Huchín con bocadillo pass/fail, puntuación grande, botones.
 
 #### Pantalla de resultado:
-- Si **aprueba** (≥ 70 pts): botón verde "Ver respuestas" + botón naranja "¡Continuar!". Sin botón "Volver al mapa".
+- Si **aprueba** (≥ 70 pts): botón naranja "¡Continuar!". Sin botón "Volver al mapa" y sin opción de ver respuestas.
 - Si **suspende**: solo botón naranja "¡Intentar de nuevo!". Sin botón "Volver al mapa".
-- "Ver respuestas" abre `showAnswers = true` → pantalla absoluta z-index 20 con dos columnas (necesidades / deseos).
 
 #### Mecánica de juego (estilo whack-a-mole):
 - 8 rondas con varios objetos a la vez en pantalla
@@ -213,7 +212,6 @@ const [points, setPoints]            // number — puntuación acumulada
 | `.nd-header` | Header gameplay z-index 2 |
 | `.nd-play-area` | Área de juego, flex, position relative |
 | `.nd-result` | Resultado absoluto z-index 10, centrado |
-| `.nd-answers` | Pantalla respuestas absoluta z-index 20, opaca |
 | `.nd-point-pop` | Indicador flotante puntos, position fixed |
 
 ---
@@ -365,9 +363,9 @@ El alumno toma el rol de **cajero**. En cada ronda ve un producto con su precio 
 | Ronda | Producto | Precio | Pago | Cambio | Puntos |
 |-------|----------|--------|------|--------|--------|
 | 1 | Chucherías | 0,50 € | 1 € | **0,50 €** | 20 |
-| 2 | Arroz | 1,20 € | 2 € | **0,80 €** | 20 |
+| 2 | Paquete de Arroz | 1,20 € | 2 € | **0,80 €** | 20 |
 | 3 | Cuadernos | 3,50 € | 5 € | **1,50 €** | 20 |
-| 4 | Chocolate | 4,00 € | 10 € | **6,00 €** | 20 |
+| 4 | Tableta de Chocolate | 4,00 € | 10 € | **6,00 €** | 20 |
 | 5 | Muñeca | 12,00 € | 20 € | **8,00 €** | 20 |
 
 La validación compara `totalSelected === changeCents` (enteros en céntimos). Cualquier combinación de monedas que sume exactamente el cambio es válida.

@@ -16,6 +16,7 @@ interface Option {
   quantityLabel: string
   priceLabel: string
   perUnitLabel: string
+  img?: string
   isPromo?: boolean
   promoNote?: string
 }
@@ -34,34 +35,34 @@ const ROUNDS: Round[] = [
   // ── FÁCIL ────────────────────────────────────────────────────────────────
   {
     difficulty: 'easy',
-    productName: 'Leche',
+    productName: 'Brick de Leche',
     productImg: '/Articulos/Leche.png',
-    question: '¿Cuál es la mejor oferta de leche?',
+    question: '¿Qué pack de leche sale más barato por unidad?',
     points: 15,
     correctId: 'b',
     options: [
-      { id: 'a', quantityLabel: '2 bricks', priceLabel: '1,80 €', perUnitLabel: '0,90 €/ud' },
-      { id: 'b', quantityLabel: '3 bricks', priceLabel: '2,40 €', perUnitLabel: '0,80 €/ud' },
+      { id: 'a', quantityLabel: '2 bricks', priceLabel: '1,80 €', perUnitLabel: '0,90 €/ud', img: '/Articulos/2Leche.png' },
+      { id: 'b', quantityLabel: '3 bricks', priceLabel: '2,40 €', perUnitLabel: '0,80 €/ud', img: '/Articulos/3Leche.png' },
     ],
   },
   {
     difficulty: 'easy',
     productName: 'Refresco',
     productImg: '/Articulos/Refresco.png',
-    question: '¿Cuál pack sale más barato por botella?',
+    question: '¿Qué pack sale más barato por botella?',
     points: 15,
     correctId: 'b',
     options: [
-      { id: 'a', quantityLabel: '3 botellas', priceLabel: '2,70 €', perUnitLabel: '0,90 €/botella' },
-      { id: 'b', quantityLabel: '2 botellas', priceLabel: '1,60 €', perUnitLabel: '0,80 €/botella' },
+      { id: 'a', quantityLabel: '3 botellas', priceLabel: '2,70 €', perUnitLabel: '0,90 €/botella', img: '/Articulos/3Refrescos.png' },
+      { id: 'b', quantityLabel: '2 botellas', priceLabel: '1,60 €', perUnitLabel: '0,80 €/botella', img: '/Articulos/2Refrescos.png' },
     ],
   },
   // ── MEDIO ────────────────────────────────────────────────────────────────
   {
     difficulty: 'medium',
-    productName: 'Arroz',
+    productName: 'Paquete de Arroz',
     productImg: '/Articulos/Arroz.png',
-    question: '¿Cuál arroz tiene mejor precio por kilo?',
+    question: '¿Qué paquete de arroz tiene mejor precio por kilo?',
     points: 20,
     correctId: 'a',
     options: [
@@ -71,9 +72,9 @@ const ROUNDS: Round[] = [
   },
   {
     difficulty: 'medium',
-    productName: 'Pasta',
+    productName: 'Paquete de Pasta',
     productImg: '/Articulos/Pasta.png',
-    question: '¿Cuál pasta tiene mejor precio por kilo?',
+    question: '¿Qué paquete de pasta tiene mejor precio por kilo?',
     points: 20,
     correctId: 'a',
     options: [
@@ -84,9 +85,9 @@ const ROUNDS: Round[] = [
   // ── DIFÍCIL ───────────────────────────────────────────────────────────────
   {
     difficulty: 'hard',
-    productName: 'Fruta',
-    productImg: '/Articulos/Fruta.png',
-    question: '¿Cuál fruta tiene mejor precio por kilo?',
+    productName: 'Plátanos',
+    productImg: '/Articulos/Platanos.png',
+    question: '¿Qué plátanos tienen mejor precio por kilo?',
     points: 15,
     correctId: 'b',
     options: [
@@ -97,19 +98,20 @@ const ROUNDS: Round[] = [
   },
   {
     difficulty: 'hard',
-    productName: 'Chocolate',
+    productName: 'Tableta de Chocolate',
     productImg: '/Articulos/Chocolate.png',
-    question: '¿Cuál es la mejor oferta de chocolate?',
+    question: '¿Qué oferta de chocolate es mejor?',
     points: 15,
     correctId: 'c',
     options: [
       { id: 'a', quantityLabel: '1 tableta', priceLabel: '1,20 €', perUnitLabel: '1,20 €/tableta' },
-      { id: 'b', quantityLabel: '2 tabletas', priceLabel: '2,20 €', perUnitLabel: '1,10 €/tableta' },
+      { id: 'b', quantityLabel: '2 tabletas', priceLabel: '2,20 €', perUnitLabel: '1,10 €/tableta', img: '/Articulos/2Chocolates.png' },
       {
         id: 'c',
         quantityLabel: 'Promo 3×2',
         priceLabel: '2,40 €',
         perUnitLabel: '0,80 €/tableta',
+        img: '/Articulos/3Chocolates.png',
         isPromo: true,
         promoNote: 'Llevas 3, pagas 2',
       },
@@ -256,7 +258,7 @@ export default function CompararOfertas({ onComplete, onBack }: Props) {
                         </span>
                       )}
                       <img
-                        src={currentRound.productImg}
+                        src={opt.img ?? currentRound.productImg}
                         alt={currentRound.productName}
                         className="co-option-img"
                       />
