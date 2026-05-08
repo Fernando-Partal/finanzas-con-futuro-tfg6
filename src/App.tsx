@@ -8,8 +8,9 @@ import PrecioCosas from './components/PrecioCosas'
 import AhorroObjetivo from './components/AhorroObjetivo'
 import CompararOfertas from './components/CompararOfertas'
 import ElCambio from './components/ElCambio'
+import FinalScreen from './components/FinalScreen'
 
-type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
+type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame' | 'final'
 
 interface PlayerData {
   name: string
@@ -36,14 +37,20 @@ interface PlayerData {
 //
 //   Ir directo al minijuego 2 (Ahorro con Objetivo):
 //     screen: 'minigame', currentGame: 2
+//
+//   Ir directo al minijuego 4 (El Cajero — para probar la transición a la final):
+//     screen: 'minigame', currentGame: 4, completedGames: [0, 1, 2, 3], points: 380
+//
+//   Pantalla final directa (con todos los minijuegos completados):
+//     screen: 'final', currentGame: null, completedGames: [0, 1, 2, 3, 4], points: 480
 // =============================================================================
 const DEBUG = {
-  enabled: false,
+  enabled: true,
 
-  screen:         'minigame' as Screen,
-  currentGame:    0          as number | null,
-  completedGames: [0, 1, 2, 3]  as number[],
-  points:         400,
+  screen:         'final'           as Screen,
+  currentGame:    null              as number | null,
+  completedGames: [0, 1, 2, 3, 4]   as number[],
+  points:         480,
   player: {
     name:      'Tester',
     character: 'boy'   as const,
@@ -102,15 +109,33 @@ function App() {
     )
   }
 
+  if (screen === 'final' && player) {
+    return (
+      <FinalScreen
+        points={points}
+        playerName={player.name}
+        onRestart={() => {
+          setPlayer(null)
+          setCompleted([])
+          setCurrentGame(null)
+          setPoints(0)
+          setScreen('home')
+        }}
+      />
+    )
+  }
+
   if (screen === 'minigame' && player && currentGame !== null) {
     const handleComplete = (score: number) => {
       const passScore = currentGame === 2 ? 50 : 70
-      if (score >= passScore && !completedGames.includes(currentGame)) {
+      const passed = score >= passScore
+
+      if (passed && !completedGames.includes(currentGame)) {
         setCompleted((prev) => [...prev, currentGame])
         setPoints((prev) => prev + score)
       }
       setCurrentGame(null)
-      setScreen('map')
+      setScreen(passed && currentGame === 4 ? 'final' : 'map')
     }
 
     const handleBack = () => {

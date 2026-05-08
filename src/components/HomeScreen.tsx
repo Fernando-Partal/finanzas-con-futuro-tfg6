@@ -115,7 +115,7 @@ export default function HomeScreen({ onStart }: HomeScreenProps) {
         {buttonLabel}
       </button>
 
-      <span className="home-credit">by Fernando P.G.</span>
+      <span className="home-credit">by Fernando Partal</span>
     </div>
   )
 }

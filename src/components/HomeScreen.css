@@ -202,14 +202,20 @@
 /* ── Crédito esquina inferior derecha ── */
 .home-credit {
   position: absolute;
-  bottom: 2.2rem;
-  right: 1.5rem;
+  bottom: 0.6rem;
+  right: 0.6rem;
   font-size: clamp(0.75rem, 1.4vw, 0.95rem);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  font-weight: 700;
+  color: #fff;
   letter-spacing: 0.5px;
   user-select: none;
+  background: rgba(0, 0, 0, 0.78);
+  padding: 0.35em 0.9em;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 /* ── Animaciones ── */
