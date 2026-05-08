@@ -30,8 +30,7 @@ src/
 ├── index.css                        ← Reset global + variables CSS
 ├── App.css                          ← Vacío / no usado
 └── components/
-    ├── HomeScreen.tsx / .css        ← Pantalla de inicio
-    ├── IntroScreen.tsx / .css       ← Monólogo del cerdito (typewriter)
+    ├── HomeScreen.tsx / .css        ← Pantalla de inicio (Huchín dormido + diálogo secuencial)
     ├── CharacterSelect.tsx / .css   ← Selección de personaje + nombre
     ├── FichaSelect.tsx              ← Selección de ficha (reutiliza CharacterSelect.css)
     ├── MapScreen.tsx / .css         ← Mapa de aventuras (5 nodos + ficha animada)
@@ -43,11 +42,14 @@ src/
     └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2, 3 y 4)
 
 public/
-├── Cerdito.png             ← Mascota principal (Huchín)
+├── Cerdito.png                  ← Mascota principal (Huchín, despierto)
+├── CerditoDurmiendo.png         ← Huchín dormido (estado inicial de HomeScreen)
+├── CerditoDormidoMolestado.png  ← Huchín molestado tras tocarle (1ª y 2ª vez)
+├── CerditoEstornudando.png      ← Huchín estornudando (3ª vez, antes de despertar)
 ├── Niña.png                ← Personaje femenino
 ├── Niño.png                ← Personaje masculino
-├── Paisaje.png             ← Fondo pantallas intro/selección
-├── FondoInicio.png         ← Fondo alternativo (no en uso actual)
+├── Paisaje.png             ← Fondo selección de personaje/ficha
+├── FondoInicio.png         ← Fondo de HomeScreen
 ├── FondoFinal.png          ← Fondo alternativo (no en uso actual)
 ├── FondoMinijuego.png      ← Fondo compartido por todos los minijuegos
 ├── FondoMinijuego1.png     ← (legado, sin uso actual)
@@ -84,7 +86,7 @@ public/
 ## 🗂️ Estado Global en App.tsx
 
 ```typescript
-type Screen = 'home' | 'intro' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
+type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
 
 interface PlayerData {
   name: string
@@ -104,22 +106,48 @@ const [points, setPoints]            // number — puntuación acumulada
 
 ## 🎮 Flujo de Pantallas Implementado
 
-### Pantalla 1 — `HomeScreen`
-- Fondo: `Paisaje.png`
-- Título: "¡La Aventura del Ahorro!"
-- Cerdito (Huchín) centrado, clickable con animación `idlePulse`
-- Al clic: bocadillo "¡Hola! Soy Huchín..."
-- Botón "¡Empezar!" deshabilitado hasta hablar con Huchín (`met === true`)
-- Transición de salida: fade-out + scale (`home-screen--leaving`)
+### Pantalla 1 — `HomeScreen` (rediseñada — fusiona la antigua IntroScreen)
+- **Fondo:** `FondoInicio.png` (cover, center)
+- **Layout:** grid `auto 1fr auto` ocupando `100vh` / `100svh` con `overflow: hidden` — sin scroll en la página
+- **Título:** "¡La Aventura del Ahorro!" en dos líneas (segunda línea acento dorado `#ffe082`), sobre panel oscuro semi-transparente (`rgba(0,0,0,0.45)`) con `backdrop-filter: blur(4px)`, borde dorado y `-webkit-text-stroke: 2px #4a1a00` para máxima legibilidad sobre cualquier fondo
+- **Huchín centrado** en grid `1fr auto 1fr` (columna central auto-fit; columnas laterales `1fr` reservan espacio simétrico para que el cerdito quede en el centro real, independientemente de si el bocadillo está visible)
+- **Crédito:** `by Fernando P.G.` en `position: absolute; bottom: 2.2rem; right: 1.5rem`, blanco con sombra
+- **Botón inferior:** siempre visible. Disabled (`opacity: 0.4`) hasta que Huchín despierte. Etiqueta dinámica según fase del diálogo
+- **Transición de salida:** fade-out + scale (`home-screen--leaving`, 550ms)
 
-### Pantalla 2 — `IntroScreen`
-- Fondo: `Paisaje.png`
-- Huchín con bocadillo typewriter (38ms/carácter)
-- Truco ghost: texto invisible fija el tamaño del bocadillo desde el frame 0
-- Clic en bocadillo → salta al final; botón "Continuar →" deshabilitado hasta que termina
-- Transición: fade-out
+#### Estados de Huchín (`PigState`)
+| Estado | Imagen | Animación |
+|--------|--------|-----------|
+| `sleeping` | `/CerditoDurmiendo.png` | `sleepBreath` 3.2s loop (respiración suave) |
+| `annoyed`  | `/CerditoDormidoMolestado.png` | `annoyedShake` 0.45s ×2 (sacudida lateral) |
+| `sneezing` | `/CerditoEstornudando.png` | `sneeze` 1s (escala + rotación + salto) |
+| `awake`    | `/Cerdito.png` | `idlePulse` 2.8s loop |
 
-### Pantalla 3 — `CharacterSelect`
+#### Mecánica de despertar (3 toques)
+- Botón invisible `.home-nose-hit` (`top: 55%; left: 30%; width: 52%; height: 48%`) sobre la zona del cerdito; calibrable para apuntar a la nariz
+- **Constantes:** `WAKE_THRESHOLD = 3`, `ANNOYED_MS = 1000`, `SNEEZE_MS = 1000`
+- Toques 1 y 2 → `annoyed` durante 1 s → vuelta a `sleeping`
+- Toque 3 → `sneezing` durante 1 s con bocadillo `¡ACHÍS!` → transición a `awake`
+- Toques ignorados durante transiciones (sólo activos en `sleeping`)
+- Timer guardado en `useRef` y limpiado en unmount
+
+#### Diálogo secuencial al despertar (3 pasos)
+Constante `DIALOG_LINES`:
+1. *"¡Aaay! ¡Me has despertado de mi siesta!"*
+2. *"Bueno… ya que estoy despierto: soy Huchín, tu guía."*
+3. *"¡Acompáñame a aprender a ahorrar y cuidar tu dinero jugando!"*
+
+- Bocadillo se posiciona **a la derecha** de Huchín (triángulo apuntando hacia él), columna 3 del grid
+- En móvil (`max-width: 768px`) cae debajo de Huchín con triángulo apuntando arriba
+- `key={d-${dialogStep}}` reanima cada bocadillo con `bubblePop`
+- Bocadillo `¡ACHÍS!` usa modificador `.home-bubble--achis` (mayor tamaño, color rojo `#d84315`, animación `achisPop` con rotación)
+- Botón inferior:
+  - Pasos 0 y 1 → label `"Continuar →"` → avanza `dialogStep`
+  - Paso 2 (último) → label `"¡Empezar!"` → dispara `onStart()` (transición a `character-select`)
+
+> ⚠️ La antigua `IntroScreen` (typewriter) ha sido **eliminada**. `HomeScreen.onStart` ahora va directo a `character-select`.
+
+### Pantalla 2 — `CharacterSelect`
 - Fondo: `Paisaje.png` con overlay oscuro `rgba(8, 4, 24, 0.7)`
 - Layout horizontal: Huchín izquierda con bocadillo fijo, panel derecho
 - Dos tarjetas (Niña / Niño), borde dorado al seleccionar
@@ -127,7 +155,7 @@ const [points, setPoints]            // number — puntuación acumulada
 - Botón "¡Vamos!" deshabilitado hasta personaje + nombre
 - Al confirmar → guarda `name` y `character`, va a `ficha-select`
 
-### Pantalla 4 — `FichaSelect`
+### Pantalla 3 — `FichaSelect`
 - **Mismo layout y CSS que CharacterSelect** (`CharacterSelect.css`)
 - Huchín izquierda con bocadillo: "¡Que no se te olvide elegir tu ficha para el camino!"
 - Huchín desplazado a la izquierda con `transform: translateX(-6rem)` (sin afectar el layout flex)
@@ -135,7 +163,7 @@ const [points, setPoints]            // number — puntuación acumulada
 - Botón "¡Continuar!" deshabilitado hasta elegir ficha
 - Al confirmar → guarda `ficha` en player, va a `map`
 
-### Pantalla 5 — `MapScreen` (mapa interactivo)
+### Pantalla 4 — `MapScreen` (mapa interactivo)
 - Fondo: `Mapa.png`
 - **5 nodos circulares** posicionados en `%` sobre el fondo (ajustables en `GAME_NODES`)
 - **Estados de nodo:**
@@ -155,7 +183,7 @@ const [points, setPoints]            // number — puntuación acumulada
 - **Huchín guía** arriba a la derecha: bocadillo a su izquierda con typewriter (38ms/carácter) y truco ghost; triángulo apunta hacia la derecha (al cerdito); mensaje cambia según progreso
 - `DEBUG_WAYPOINTS = false` — cuando es `true` muestra puntos rojos (PATH_SEGMENTS) y azules (GAME_NODES) para calibrar posiciones
 
-### Pantalla 6 — `minigame`
+### Pantalla 5 — `minigame`
 - Para `currentGame === 0`: renderiza `<NecesidadDeseo>` ✅
 - Para `currentGame === 1`: renderiza `<PrecioCosas>` ✅
 - Para `currentGame === 2`: renderiza `<AhorroObjetivo>` ✅
@@ -444,7 +472,8 @@ const passed        = score >= PASS_SCORE
 
 ## 🎨 Decisiones de Diseño Establecidas
 
-- **Fondo intro/selección:** `Paisaje.png` con `background-size: cover; background-position: bottom center`
+- **Fondo HomeScreen:** `FondoInicio.png` con `background-size: cover; background-position: center center`
+- **Fondo selección (CharacterSelect / FichaSelect):** `Paisaje.png` con `background-size: cover; background-position: bottom center`
 - **Fondo mapa:** `Mapa.png` con `background-size: cover; background-position: center center`
 - **Fondo minijuegos (todos):** `FondoMinijuego.png` + overlay permanente `rgba(0,0,0,0.65)` siempre visible
 - **Paleta:** naranja/amarillo para botones (`#ff6f00` → `#ffa000`), sombra `#bf360c`; dorado `#ffcc02` para bordes de bocadillos
@@ -461,10 +490,9 @@ const passed        = score >= PASS_SCORE
 ## 🐷 Mascota: Huchín
 
 - Nombre: **Huchín**
-- Imagen: `/Cerdito.png`
+- Imagen base: `/Cerdito.png` (despierto). Variantes: `/CerditoDurmiendo.png`, `/CerditoDormidoMolestado.png`, `/CerditoEstornudando.png`
 - Rol: guía narrativo, aparece en todas las pantallas con bocadillos
-- En HomeScreen: clickable para presentarse
-- En IntroScreen: typewriter con bocadillo
+- En HomeScreen: dormido al inicio, se despierta tras 3 toques en la nariz; bocadillo a su derecha con diálogo secuencial de 3 pasos
 - En CharacterSelect / FichaSelect: estático con bocadillo fijo
 - En MapScreen: arriba a la derecha, bocadillo a su izquierda con typewriter, mensaje según progreso
 - En minijuegos: bocadillo con dos slides navegables en la fase `intro`
@@ -497,6 +525,7 @@ const D = DEBUG.enabled ? DEBUG : null
 
 | Qué testear | `screen` | `currentGame` | `completedGames` |
 |---|---|---|---|
+| Pantalla de inicio | `'home'` | `null` | `[]` |
 | Mapa vacío | `'map'` | `null` | `[]` |
 | Mapa con 4 completos | `'map'` | `null` | `[0, 1, 2, 3]` |
 | Minijuego 0 directo | `'minigame'` | `0` | `[]` |
