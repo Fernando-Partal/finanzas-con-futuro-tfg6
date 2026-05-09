@@ -45,7 +45,7 @@ interface PlayerData {
 //     screen: 'final', currentGame: null, completedGames: [0, 1, 2, 3, 4], points: 480
 // =============================================================================
 const DEBUG = {
-  enabled: true,
+  enabled: false,
 
   screen:         'final'           as Screen,
   currentGame:    null              as number | null,
