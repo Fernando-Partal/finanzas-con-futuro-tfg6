@@ -96,6 +96,29 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
+function takeUniqueFromPool(
+  pool: React.MutableRefObject<Item[]>,
+  source: Item[],
+  count: number
+): Item[] {
+  const picked: Item[] = []
+
+  while (picked.length < count) {
+    if (pool.current.length === 0) {
+      const pickedNames = new Set(picked.map(item => item.name))
+      pool.current = shuffle(source.filter(item => !pickedNames.has(item.name)))
+    }
+
+    const next = pool.current.shift()
+    if (!next) break
+    if (!picked.some(item => item.name === next.name)) {
+      picked.push(next)
+    }
+  }
+
+  return picked
+}
+
 export default function NecesidadDeseo({ onComplete, onBack }: Props) {
   const [gamePhase,  setGamePhase]  = useState<GamePhase>('intro')
   const [round,      setRound]      = useState(0)
@@ -125,16 +148,9 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
 
     const cfg = ROUND_CONFIGS[round]
 
-    if (needPool.current.length < cfg.n) {
-      needPool.current = [...needPool.current, ...shuffle([...NECESIDAD_ITEMS])]
-    }
-    if (wantPool.current.length < cfg.d) {
-      wantPool.current = [...wantPool.current, ...shuffle([...DESEO_ITEMS])]
-    }
-
     const picked = shuffle([
-      ...needPool.current.splice(0, cfg.n),
-      ...wantPool.current.splice(0, cfg.d),
+      ...takeUniqueFromPool(needPool, NECESIDAD_ITEMS, cfg.n),
+      ...takeUniqueFromPool(wantPool, DESEO_ITEMS, cfg.d),
     ])
 
     setItems(picked.map((item, i) => ({
