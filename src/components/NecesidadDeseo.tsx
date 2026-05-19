@@ -48,21 +48,18 @@ const ALL_ITEMS: Item[] = [
 const NECESIDAD_ITEMS = ALL_ITEMS.filter(i => i.type === 'necesidad')
 const DESEO_ITEMS     = ALL_ITEMS.filter(i => i.type === 'deseo')
 
-// 8 rondas — total necesidades = 4+3+3+3+3+2+2+2 = 22  →  cap en 100 puntos
-// Dificultad: primeras rondas más tiempo y más necesidades; últimas más deseos y menos tiempo
+// 5 rondas — total necesidades = 4+3+3+3+3 = 16  →  máximo 96 puntos
+// Dificultad: primeras rondas más tiempo y más necesidades; últimas con menos tiempo
 const ROUND_CONFIGS = [
   { n: 4, d: 2, ms: 8000 },  // R1 — 6 ítems, 8 s
   { n: 3, d: 3, ms: 7000 },  // R2 — 6 ítems, 7 s
-  { n: 3, d: 3, ms: 6000 },  // R3 — 6 ítems, 6 s
-  { n: 3, d: 3, ms: 6000 },  // R4 — 6 ítems, 6 s
-  { n: 3, d: 3, ms: 5000 },  // R5 — 6 ítems, 5 s
-  { n: 2, d: 4, ms: 4000 },  // R6 — 6 ítems, 4 s
-  { n: 2, d: 4, ms: 3000 },  // R7 — 6 ítems, 3 s
-  { n: 2, d: 4, ms: 2500 },  // R8 — 6 ítems, 2.5 s
+  { n: 3, d: 3, ms: 7000 },  // R3 — 6 ítems, 7 s
+  { n: 3, d: 3, ms: 7000 },  // R4 — 6 ítems, 7 s
+  { n: 3, d: 3, ms: 6000 },  // R5 — 6 ítems, 6 s
 ] as const
 
 const TOTAL_ROUNDS = ROUND_CONFIGS.length
-const PTS_CORRECT  = 6   // tocar una necesidad (22 necesidades × 6 = 132 → cap 100)
+const PTS_CORRECT  = 6   // tocar una necesidad (16 necesidades × 6 = 96)
 const PTS_WRONG    = 5   // tocar un deseo por error
 
 type GamePhase  = 'intro' | 'playing' | 'result'
@@ -284,7 +281,7 @@ export default function NecesidadDeseo({ onComplete, onBack }: Props) {
                   </p>
                   <p>
                     Si tocas un <strong>deseo</strong> por error, ¡perderás puntos!
-                    Cada ronda es más rápida, ¡así que ojo!
+                    Las últimas rondas van más rápido, ¡así que ojo!
                   </p>
                 </>
               )}

@@ -66,7 +66,7 @@ const ROUNDS: Round[] = [
     points: 20,
     correctId: 'a',
     options: [
-      { id: 'a', quantityLabel: '500 g', priceLabel: '0,65 €', perUnitLabel: '1,30 €/kg' },
+      { id: 'a', quantityLabel: '500 g', priceLabel: '0,70 €', perUnitLabel: '1,40 €/kg' },
       { id: 'b', quantityLabel: '1 kg', priceLabel: '1,60 €', perUnitLabel: '1,60 €/kg' },
     ],
   },
@@ -78,8 +78,8 @@ const ROUNDS: Round[] = [
     points: 20,
     correctId: 'a',
     options: [
-      { id: 'a', quantityLabel: '500 g', priceLabel: '1,10 €', perUnitLabel: '2,20 €/kg' },
-      { id: 'b', quantityLabel: '400 g', priceLabel: '0,96 €', perUnitLabel: '2,40 €/kg' },
+      { id: 'a', quantityLabel: '500 g', priceLabel: '1,00 €', perUnitLabel: '2,00 €/kg' },
+      { id: 'b', quantityLabel: '1 kg', priceLabel: '2,40 €', perUnitLabel: '2,40 €/kg' },
     ],
   },
   // ── DIFÍCIL ───────────────────────────────────────────────────────────────
@@ -92,8 +92,8 @@ const ROUNDS: Round[] = [
     correctId: 'b',
     options: [
       { id: 'a', quantityLabel: '500 g', priceLabel: '1,50 €', perUnitLabel: '3,00 €/kg' },
-      { id: 'b', quantityLabel: '750 g', priceLabel: '1,80 €', perUnitLabel: '2,40 €/kg' },
-      { id: 'c', quantityLabel: '1 kg', priceLabel: '2,80 €', perUnitLabel: '2,80 €/kg' },
+      { id: 'b', quantityLabel: '1 kg', priceLabel: '2,40 €', perUnitLabel: '2,40 €/kg' },
+      { id: 'c', quantityLabel: '2 kg', priceLabel: '5,60 €', perUnitLabel: '2,80 €/kg' },
     ],
   },
   {

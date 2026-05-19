@@ -39,6 +39,7 @@ src/
     ├── AhorroObjetivo.tsx / .css    ← Minijuego 2 — IMPLEMENTADO ✅
     ├── CompararOfertas.tsx / .css   ← Minijuego 3 — IMPLEMENTADO ✅
     ├── ElCambio.tsx / .css          ← Minijuego 4 — IMPLEMENTADO ✅
+    ├── FinalScreen.tsx / .css       ← Pantalla de fin (tras completar MJ4) — IMPLEMENTADO ✅
     └── Calculator.tsx / .css        ← Calculadora reutilizable (usada en Minijuegos 2, 3 y 4)
 
 public/
@@ -50,7 +51,7 @@ public/
 ├── Niño.png                ← Personaje masculino
 ├── Paisaje.png             ← Fondo selección de personaje/ficha
 ├── FondoInicio.png         ← Fondo de HomeScreen
-├── FondoFinal.png          ← Fondo alternativo (no en uso actual)
+├── FondoFinal.png          ← Fondo de la pantalla final (FinalScreen)
 ├── FondoMinijuego.png      ← Fondo compartido por todos los minijuegos
 ├── FondoMinijuego1.png     ← (legado, sin uso actual)
 ├── Mapa.png                ← Fondo del mapa de aventuras
@@ -86,7 +87,7 @@ public/
 ## 🗂️ Estado Global en App.tsx
 
 ```typescript
-type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame'
+type Screen = 'home' | 'character-select' | 'ficha-select' | 'map' | 'minigame' | 'final'
 
 interface PlayerData {
   name: string
@@ -195,8 +196,69 @@ Constante `DIALOG_LINES`:
   - Resto: `score >= 70`
   - Si aprueba Y no estaba completado → añade a `completedGames` y suma `score` a puntos globales
 - `onBack`: vuelve al mapa sin registrar nada
+- **Transición especial:** si aprueba el Minijuego 4 (`currentGame === 4`) → va a `'final'` en lugar de `'map'`
 
 > ⚠️ El Minijuego 4 puede entregar hasta **150 pts** (ver sección 4). El umbral de aprobado sigue siendo 70.
+
+### Pantalla 6 — `FinalScreen` (pantalla de fin)
+- **Fondo:** `FondoFinal.png` (cover, center)
+- **Layout:** grid `auto 1fr auto` ocupando `100vh` / `100svh` con `overflow: hidden` — sin scroll en la página
+- **Acceso:** se entra automáticamente al **aprobar el Minijuego 4** (último del recorrido). No es accesible desde el mapa.
+- **Props:** `points: number`, `playerName: string`, `onRestart: () => void`
+- **Animación de entrada:** `finalFadeIn` 0.7s (fade + slide vertical)
+- **Transición de salida:** fade-out + scale (`final-screen--leaving`, 550ms) antes de `onRestart()`
+
+#### Header
+- **Título:** "¡Aventura Completada!" en dos líneas (segunda con acento dorado `#ffe082`) sobre panel oscuro semi-transparente con `backdrop-filter: blur(4px)`, borde dorado y `-webkit-text-stroke: 2px #4a1a00`
+- **Marcador de puntos final:** badge naranja/dorado grande con etiqueta "Puntos" y la cifra de `points`, con animación `scorePop` (cubic-bezier, escala + rotación)
+
+#### Escenario (grid `auto 1fr`)
+- **Huchín** (`/Cerdito.png`) a la izquierda, con `idlePulse` 2.8s loop y `drop-shadow`
+- **Bocadillo** a su derecha con triángulo apuntando hacia él (en móvil pasa debajo)
+- `key={d-${step}}` reanima cada bocadillo con `bubblePop` al avanzar
+- Bocadillo con **título** (naranja oscuro `#e65100`, opcional) + **texto** y **dots de progreso** (uno por línea de diálogo: gris → dorado completadas → naranja activa)
+
+#### Diálogo secuencial (8 pasos)
+Constante `DIALOG_LINES` (cada entrada `{ title?: string, text: string }`):
+1. *"¡Lo has conseguido!"* — felicitación personalizada con `playerName`
+2. *"Tu puntuación final"* — invita a mirar el marcador y a repasar lo aprendido
+3. *"Necesidad vs Deseo"* — refuerzo del aprendizaje del MJ0
+4. *"¿Cuánto cuesta?"* — refuerzo del MJ1
+5. *"Ahorro con Objetivo"* — refuerzo del MJ2
+6. *"Comparar Ofertas"* — refuerzo del MJ3
+7. *"El Cajero"* — refuerzo del MJ4
+8. *"¡Sigue ahorrando!"* — despedida
+
+#### Botón inferior
+- Pasos 0–6 → label `"Continuar →"` → avanza `step`
+- Paso 7 (último) → label `"¡Volver al inicio!"` → dispara la transición de salida y `onRestart()`
+
+#### `onRestart` (en App.tsx)
+Limpia todo el estado y vuelve a `'home'`:
+```typescript
+setPlayer(null)
+setCompleted([])
+setCurrentGame(null)
+setPoints(0)
+setScreen('home')
+```
+
+#### Crédito
+- `by Fernando Partal` en `position: absolute; bottom: 1.4rem; right: 1.5rem`, blanco sobre panel oscuro con `backdrop-filter: blur(3px)` (variante más estilizada que la de HomeScreen)
+
+#### Clases CSS clave (prefijo `final-`)
+| Clase | Descripción |
+|-------|-------------|
+| `.final-screen` / `--leaving` | Raíz con grid 3 filas, fondo `FondoFinal.png`, animación de entrada y de salida |
+| `.final-header` | Flex row con título + marcador de puntos |
+| `.final-title` / `-line` / `--accent` | Título en panel oscuro con borde dorado, dos líneas (segunda dorada) |
+| `.final-score-badge` / `-label` / `-value` | Marcador grande con `scorePop` |
+| `.final-stage` | Grid 2 columnas (Huchín + bocadillo) |
+| `.final-pig` / `.final-cerdito` | Huchín con `idlePulse` |
+| `.final-bubble` / `-title` / `-text` | Bocadillo blanco con triángulo apuntando a Huchín |
+| `.final-bubble-progress` / `.final-dot` / `--done` / `--active` | Dots de progreso del diálogo |
+| `.final-btn` | Botón naranja principal (mismo estilo que el resto de pantallas) |
+| `.final-credit` | Crédito esquina inferior derecha con backdrop-blur |
 
 ---
 
@@ -223,7 +285,7 @@ Constante `DIALOG_LINES`:
    - Slide 1: bienvenida, explica qué son necesidades y deseos. Botón "Continuar →".
    - Slide 2: instrucciones del juego. Botón "¡Entendido! ¡Jugar!".
    - El bocadillo tiene `key={introSlide}` para reanimar el `ndPopIn` al cambiar de slide.
-2. `'playing'` — Gameplay activo (8 rondas).
+2. `'playing'` — Gameplay activo (5 rondas).
 3. `'result'` — Pantalla de resultado centrada, Huchín con bocadillo pass/fail, puntuación grande, botones.
 
 #### Pantalla de resultado:
@@ -231,13 +293,13 @@ Constante `DIALOG_LINES`:
 - Si **suspende**: solo botón naranja "¡Intentar de nuevo!". Sin botón "Volver al mapa".
 
 #### Mecánica de juego (estilo whack-a-mole):
-- 8 rondas con varios objetos a la vez en pantalla
+- 5 rondas con varios objetos a la vez en pantalla
 - El jugador **toca** los que sean NECESIDAD; ignora los DESEOS
 - Sin botones de categoría — interacción directa sobre las tarjetas
-- Rondas cada vez más cortas y con más deseos que necesidades
+- Primeras rondas más largas; últimas rondas con menos tiempo
 
 #### Puntuación:
-- `PTS_CORRECT = 6` por tocar necesidad (cap global en 100)
+- `PTS_CORRECT = 6` por tocar necesidad (máximo 96 pts)
 - `PTS_WRONG = 5` por tocar deseo (mín. 0)
 - **Aprueba con ≥ 70 pts**
 
@@ -496,6 +558,7 @@ const passed        = score >= PASS_SCORE
 - En CharacterSelect / FichaSelect: estático con bocadillo fijo
 - En MapScreen: arriba a la derecha, bocadillo a su izquierda con typewriter, mensaje según progreso
 - En minijuegos: bocadillo con dos slides navegables en la fase `intro`
+- En FinalScreen: centrado a la izquierda con `idlePulse`; bocadillo a su derecha con diálogo secuencial de 8 pasos (felicitación + repaso de los 5 minijuegos + despedida) y dots de progreso
 
 ---
 
@@ -533,6 +596,7 @@ const D = DEBUG.enabled ? DEBUG : null
 | Minijuego 2 directo | `'minigame'` | `2` | `[]` |
 | Minijuego 3 directo | `'minigame'` | `3` | `[]` |
 | Minijuego 4 directo | `'minigame'` | `4` | `[]` |
+| Pantalla final directa | `'final'` | `null` | `[0, 1, 2, 3, 4]` |
 
 > **⚠️ Importante:** acordarse de poner `enabled: false` antes de hacer build/deploy.
 

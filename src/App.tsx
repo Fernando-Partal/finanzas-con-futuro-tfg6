@@ -48,11 +48,11 @@ const DEBUG = {
   enabled: false,
 
   screen:         'final'           as Screen,
-  currentGame:    null              as number | null,
-  completedGames: [0, 1, 2, 3, 4]   as number[],
-  points:         480,
+  currentGame:    4              as number | null,
+  completedGames: [0,1]   as number[],
+  points:         400,
   player: {
-    name:      'Tester',
+    name:      'Fernando',
     character: 'boy'   as const,
     ficha:     'perro' as const,
   },
