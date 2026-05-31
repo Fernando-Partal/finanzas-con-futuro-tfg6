@@ -59,7 +59,7 @@ public/
 ├── FichaPerro.png          ← Ficha seleccionable: perro
 ├── FichaPato.png           ← Ficha seleccionable: pato
 ├── Articulos/              ← Imágenes de productos (catálogo ampliado)
-│   ├── Arroz.png, Cuadernos.png, Filete.png, Fruta.png, Huevos.png, Leche.png,
+│   ├── Arroz.png, Cuadernos.png, Fruta.png, Huevos.png, Leche.png,
 │   │   Pan.png, Pasta.png, Pescado.png, Platanos.png, Verduras.png,
 │   │   Bolsa de Patatas.png, Botella de Agua.png                   ← Necesidades / básicos
 │   ├── Bicicleta.png, Chocolate.png, Chucherias.png, CocheTeledirigido.png,
@@ -299,7 +299,7 @@ setScreen('home')
 - Primeras rondas más largas; últimas rondas con menos tiempo
 
 #### Puntuación:
-- `PTS_CORRECT = 6` por tocar necesidad (máximo 96 pts)
+- `PTS_CORRECT = 8` por tocar necesidad (clamp a 100 pts máx — basta con ~9 aciertos para aprobar)
 - `PTS_WRONG = 5` por tocar deseo (mín. 0)
 - **Aprueba con ≥ 70 pts**
 

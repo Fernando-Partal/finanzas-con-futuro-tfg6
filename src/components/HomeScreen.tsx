@@ -77,6 +77,15 @@ export default function HomeScreen({ onStart }: HomeScreenProps) {
       </h1>
 
       <div className="home-stage">
+        {(pigState === 'sleeping' || pigState === 'annoyed') && (
+          <div className="home-hint" role="status">
+            <span className="home-hint-text">
+              ¡Toca su <strong>nariz</strong> 3 veces<br />para despertarlo!
+            </span>
+            <span className="home-hint-arrow" aria-hidden="true">👉</span>
+          </div>
+        )}
+
         <div className={`home-pig home-pig--${pigState}`}>
           <img
             src={PIG_SRC[pigState]}

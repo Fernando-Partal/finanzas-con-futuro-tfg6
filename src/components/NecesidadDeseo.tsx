@@ -21,7 +21,6 @@ const ALL_ITEMS: Item[] = [
   { name: 'Coche teledirigido', img: '/Articulos/CocheTeledirigido.png', type: 'deseo'     },
   { name: 'Cuadernos',          img: '/Articulos/Cuadernos.png',         type: 'necesidad' },
   { name: 'Donuts',             img: '/Articulos/Donuts.png',            type: 'deseo'     },
-  { name: 'Carne',              img: '/Articulos/Filete.png',            type: 'necesidad' },
   { name: 'Fruta',              img: '/Articulos/Fruta.png',             type: 'necesidad' },
   { name: 'Helado',             img: '/Articulos/Helado.png',            type: 'deseo'     },
   { name: 'Huevos',             img: '/Articulos/Huevos.png',            type: 'necesidad' },
@@ -48,7 +47,7 @@ const ALL_ITEMS: Item[] = [
 const NECESIDAD_ITEMS = ALL_ITEMS.filter(i => i.type === 'necesidad')
 const DESEO_ITEMS     = ALL_ITEMS.filter(i => i.type === 'deseo')
 
-// 5 rondas — total necesidades = 4+3+3+3+3 = 16  →  máximo 96 puntos
+// 5 rondas — total necesidades = 4+3+3+3+3 = 16  →  máximo 100 puntos (clamp)
 // Dificultad: primeras rondas más tiempo y más necesidades; últimas con menos tiempo
 const ROUND_CONFIGS = [
   { n: 4, d: 2, ms: 8000 },  // R1 — 6 ítems, 8 s
@@ -59,7 +58,7 @@ const ROUND_CONFIGS = [
 ] as const
 
 const TOTAL_ROUNDS = ROUND_CONFIGS.length
-const PTS_CORRECT  = 6   // tocar una necesidad (16 necesidades × 6 = 96)
+const PTS_CORRECT  = 8   // tocar una necesidad (9 aciertos llegan al umbral de 70)
 const PTS_WRONG    = 5   // tocar un deseo por error
 
 type GamePhase  = 'intro' | 'playing' | 'result'
